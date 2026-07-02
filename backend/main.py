@@ -67,6 +67,17 @@ def audit_trail():
     return audit.recent(25)
 
 
+@app.post("/api/feedback")
+def feedback(payload: dict):
+    from . import audit
+    q = (payload.get("question") or "").strip()
+    rating = payload.get("rating")
+    if not q or rating not in ("up", "down"):
+        raise HTTPException(status_code=400, detail="Need question + rating up/down")
+    audit.log_feedback(q, rating, payload.get("meta"))
+    return {"ok": True, "stats": audit.feedback_stats()}
+
+
 @app.get("/api/audit/export")
 def audit_export():
     from fastapi.responses import PlainTextResponse

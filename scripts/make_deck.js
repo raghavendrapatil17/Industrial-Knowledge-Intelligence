@@ -125,7 +125,7 @@ function pageNo(s, n) {
   kicker(s, "Our Solution");
   title(s, "One knowledge graph. Five specialist agents.");
   const agents = [
-    ["Ingestion & Knowledge Graph", "Reads PDF, spreadsheets & email; extracts entities; links into a live graph"],
+    ["Ingestion & Knowledge Graph", "Reads PDF, spreadsheets, email & scanned images (OCR); links into a live graph"],
     ["Expert Copilot", "Plain-language Q&A with cited, confidence-scored answers in ~10 ms"],
     ["Maintenance & RCA", "Per-asset health, failure timeline, root cause & predictive actions"],
     ["Compliance Intelligence", "OISD / Factory Act / PESO coverage matrix with gap detection"],
@@ -161,7 +161,7 @@ function pageNo(s, n) {
   title(s, "Ingest, link, retrieve, cite");
   const y = 2.65, bh = 1.25, TW = 12.0, aw = 0.5, bw = (TW - 3 * aw) / 4; // even 4-stage row
   const stages = [
-    ["Documents", "PDF · sheets · email", C.card],
+    ["Documents", "PDF · sheets · email · scans (OCR)", C.card],
     ["Ingestion", "parse · chunk · NER", C.card],
     ["Knowledge Graph", "entities + relationships", C.cardHi],
     ["Hybrid Retrieval", "BM25 + graph traversal", C.card],
@@ -228,7 +228,7 @@ function pageNo(s, n) {
   const diffs = [
     ["Cross-document reasoning", "Graph traversal assembles the full story lexical search alone would miss."],
     ["Grounded to the sentence", "Every claim links to the exact supporting sentence in the source — not just the file."],
-    ["Live, self-updating", "Drop in any format — PDF, spreadsheet or email — and it's entity-extracted, linked, and queryable instantly."],
+    ["Live, self-updating", "Drop in any format — PDF, spreadsheet, email, even a scanned photo (OCR) — entity-extracted, linked, queryable instantly."],
   ];
   const rx = M + 6.4, rw = 6.2; let ry = 2.3;
   diffs.forEach((d) => {

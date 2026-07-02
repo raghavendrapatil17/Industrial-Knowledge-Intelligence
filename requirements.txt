@@ -19,3 +19,7 @@ openai>=1.40
 # Optional — enables dense semantic embeddings on top of BM25.
 # Not required; retrieval works on BM25 + graph traversal without it.
 # sentence-transformers>=2.6
+
+# Optional — OCR for scanned forms / photos / drawings (pure-pip, offline, no
+# system binary). Without it, image uploads are simply skipped.
+rapidocr-onnxruntime>=1.3

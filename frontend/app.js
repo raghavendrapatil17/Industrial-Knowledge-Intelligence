@@ -213,6 +213,7 @@ async function ask(q) {
     if (!res.ok) { addBotText(data.detail || "Something went wrong."); return; }
     data.entities = data.entities || []; data.citations = data.citations || []; data.follow_ups = data.follow_ups || [];
     data.graph = data.graph || { nodes: [], edges: [] };
+    data._q = q;   // carry the question for the feedback loop
     renderAnswer(data);
     switchCopilotTab("answer");
     const hi = new Set([...data.entities.map(e => e.id), ...data.citations.map(c => c.doc_id)]);
@@ -253,6 +254,22 @@ function renderAnswer(d) {
       () => toast("Copy failed", "", "err"));
   };
   actions.appendChild(copyBtn);
+  // feedback loop — capture expert validation (👍/👎)
+  const up = el("button", "mini-btn", "👍"), down = el("button", "mini-btn", "👎");
+  up.title = "Correct — capture as validated knowledge"; down.title = "Wrong — flag for review";
+  const sendFb = (rating, btn) => {
+    fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: d._q || "", rating,
+        meta: { confidence: d.confidence_label, grounded: d.grounded, sources: d.citations.map(c => c.doc_id) } }) })
+      .then(r => r.json()).then(() => {
+        up.disabled = true; down.disabled = true;
+        btn.textContent = rating === "up" ? "👍 Validated" : "👎 Flagged";
+        loaded.overview = false;   // refresh the audit tally next time Overview is opened
+        toast("Feedback captured", "Expert validation logged to the audit trail", "ok");
+      }).catch(() => toast("Feedback failed", "", "err"));
+  };
+  up.onclick = () => sendFb("up", up); down.onclick = () => sendFb("down", down);
+  actions.appendChild(up); actions.appendChild(down);
   wrap.appendChild(actions);
 
   // follow-up suggestions
@@ -466,7 +483,8 @@ async function loadOverview() {
     const au = await (await fetch("/api/audit")).json();
     const auStats = au.stats || {}; au.events = au.events || [];
     html += `<div class="block"><h3 style="justify-content:space-between"><span>Audit trail <span class="dim" style="font-weight:400;font-size:12px">· ${auStats.total_queries||0} queries logged`
-      + (auStats.grounded_pct!=null?` · ${auStats.grounded_pct}% grounded`:``) + `</span></span>`
+      + (auStats.grounded_pct!=null?` · ${auStats.grounded_pct}% grounded`:``)
+      + (auStats.feedback&&auStats.feedback.total?` · ${auStats.feedback.up}👍 ${auStats.feedback.down}👎 expert validations`:``) + `</span></span>`
       + `<button class="mini-btn" onclick="window.open('/api/audit/export','_blank')">⬇ Export CSV</button></h3>`;
     if (au.events.length) {
       html += `<table class="tbl"><thead><tr><th>Time (UTC)</th><th>Question</th><th>Confidence</th><th>Grounded</th><th>Sources</th></tr></thead><tbody>` +

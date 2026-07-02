@@ -99,15 +99,17 @@ cited and instant. If you added OpenAI billing, it'll say "LLM: openai" and answ
 
 > **"And Lessons Learned surfaces recurring failure patterns across the whole plant history."**
 
-### SHOT 5 — Live multi-format ingestion + close (2:55–3:40)  ·  *Click "Ingestion & Graph"*
-*(THE BONUS WOW — rehearse this. Have a small **.xlsx or .eml** file ready on your desktop.)*
-*(Click **Upload document**, pick the spreadsheet/email file, wait for the green toast.)*
+### SHOT 5 — Live OCR / multi-format ingestion + close (2:55–3:40)  ·  *Click "Ingestion & Graph"*
+*(THE BONUS WOW — rehearse this. Use `DEMO-scanned-maintenance-note.png` on your Desktop —
+a **photo/scan of a paper note**. This shows Computer-Vision/OCR, the strongest on-brief moment.)*
+*(Click **Upload document**, pick the image, wait a few seconds for the green toast.)*
 
-> **"And it's not just PDFs. Watch — I'll drop in a spreadsheet. It's parsed, the equipment tags
-> are extracted, and it's linked into the graph and queryable in seconds. Structured or
-> unstructured — engineering drawings, work orders, spreadsheets, even email archives — one brain."**
+> **"And it's not just digital files. This is a photo of a paper maintenance note. Watch — it runs
+> OCR, reads the text, pulls out the equipment tags — PUMP-204, the OISD standard, the work order —
+> and links them into the graph in seconds. PDFs, spreadsheets, email, even scanned paper — one brain."**
 
-*(Point at the toast showing entities extracted + documents linked. Let the graph settle.)*
+*(Point at the toast: entities extracted + documents linked. Optionally give the answer a 👍 to
+show the expert-feedback capture. Let the graph settle.)*
 
 > **"One knowledge graph. Five agents. A hundred-percent retrieval accuracy versus sixty-seven for
 > keyword search, in milliseconds instead of hours. This same architecture works for a refinery,

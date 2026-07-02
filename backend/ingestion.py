@@ -11,8 +11,26 @@ from pathlib import Path
 
 from . import config
 
-# structured + unstructured formats we can ingest
-SUPPORTED_EXT = {".txt", ".md", ".pdf", ".csv", ".xlsx", ".eml"}
+# structured + unstructured formats we can ingest (images use OCR)
+_IMAGE_EXT = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
+SUPPORTED_EXT = {".txt", ".md", ".pdf", ".csv", ".xlsx", ".eml"} | _IMAGE_EXT
+
+_ocr_engine = None
+
+
+def _ocr_image(raw: bytes) -> str:
+    """OCR a scanned form / photo / drawing into text (Document Intelligence)."""
+    global _ocr_engine
+    import numpy as np, cv2
+    from rapidocr_onnxruntime import RapidOCR
+    if _ocr_engine is None:
+        _ocr_engine = RapidOCR()
+    img = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
+    if img is None:
+        return "[Could not decode image]"
+    res, _ = _ocr_engine(img)
+    body = "\n".join(line[1] for line in (res or []))
+    return "DOCUMENT TYPE: Scanned Document (OCR)\n\n" + (body or "[No text detected in image]")
 
 
 @dataclass
@@ -42,6 +60,8 @@ def parse_bytes(filename: str, raw: bytes) -> str:
             return _parse_csv(raw.decode("utf-8", "ignore"))
         if ext == ".eml":
             return _parse_eml(raw)
+        if ext in _IMAGE_EXT:
+            return _ocr_image(raw)
     except Exception as e:  # pragma: no cover
         return f"[Could not parse {ext or 'file'}: {e}]"
     return raw.decode("utf-8", "ignore")

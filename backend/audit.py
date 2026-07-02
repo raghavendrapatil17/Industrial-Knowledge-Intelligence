@@ -15,7 +15,35 @@ from datetime import datetime, timezone
 from . import config
 
 _LOG = config.STORAGE_DIR / "audit_log.jsonl"
+_FEEDBACK = config.STORAGE_DIR / "feedback.jsonl"
 _lock = threading.Lock()
+
+
+def log_feedback(question: str, rating: str, meta: dict | None = None) -> None:
+    """Record an engineer's thumbs-up/down on an answer — captures expert validation
+    (the knowledge that would otherwise retire with the workforce)."""
+    try:
+        rec = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+               "question": question, "rating": "up" if rating == "up" else "down",
+               "meta": meta or {}}
+        with _lock:
+            with _FEEDBACK.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
+def feedback_stats() -> dict:
+    up = down = 0
+    if _FEEDBACK.exists():
+        for line in _FEEDBACK.read_text(encoding="utf-8").splitlines():
+            try:
+                r = json.loads(line)
+                up += r.get("rating") == "up"
+                down += r.get("rating") == "down"
+            except Exception:
+                continue
+    return {"up": up, "down": down, "total": up + down}
 
 _MAX_BYTES = 2 * 1024 * 1024   # cap log size; trim to last _KEEP lines beyond this
 _KEEP = 2000
@@ -103,5 +131,6 @@ def recent(n: int = 25) -> dict:
             "total_queries": total,
             "avg_confidence": round(sum(confs) / len(confs), 2) if confs else None,
             "grounded_pct": round(100 * len(grounded) / total) if total else None,
+            "feedback": feedback_stats(),
         },
     }

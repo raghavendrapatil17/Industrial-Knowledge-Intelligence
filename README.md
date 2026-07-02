@@ -26,7 +26,7 @@ The technology exists. The **intelligence layer that connects it** does not. Tha
 
 | # | Agent | Status | What it does |
 |---|-------|--------|--------------|
-| 1 | **Universal Document Ingestion & Knowledge Graph Agent** | ✅ Built | Ingests heterogeneous formats — **PDF, text, spreadsheets (.xlsx/.csv), email (.eml)** — extracts entities, builds a linked knowledge graph across document types |
+| 1 | **Universal Document Ingestion & Knowledge Graph Agent** | ✅ Built | Ingests heterogeneous formats — **PDF, text, spreadsheets (.xlsx/.csv), email (.eml), and scanned images/photos via OCR** — extracts entities, builds a linked knowledge graph across document types |
 | 2 | **Expert Knowledge Copilot** | ✅ Built | RAG chat: cited, confidence-scored answers in ~10ms, mobile-ready |
 | 3 | **Maintenance Intelligence & RCA Agent** | ✅ Built | Per-asset root-cause + health score + failure timeline + predictive recs |
 | 4 | **Quality & Regulatory Compliance Intelligence** | ✅ Built | OISD/Factory Act/PESO requirement-coverage matrix + gap detection |
@@ -49,6 +49,8 @@ Lessons are pre-computed analytic dashboards over the same linked corpus.
 | **Voice query (field mode)** | Speak your question via the mic button (Web Speech API) | Hits the brief's "mobile for field technicians" |
 | **Smart follow-up suggestions** | Context-aware next questions after every answer | Guides discovery, smooths the demo |
 | **Command palette (Ctrl/Cmd-K)** | Jump to any view, asset, or question instantly | Signals a real, polished product |
+| **OCR / scanned-document intelligence** | Upload a photo or scanned form → **RapidOCR reads it**, entities extracted, linked into the graph (pure-pip, offline) | Handles real-world paper/scans, not just digital files |
+| **Expert feedback loop** | 👍/👎 on any answer → logged as **captured expert validation** | Preserves retiring-workforce knowledge |
 | **Grounding / trust gate** | Every answer is marked **Grounded** or flagged **⚠ Verify** with a low-evidence advisory | Trust in safety-critical use |
 | **Audit trail** | Append-only provenance log of every query (time, confidence, grounding, sources) | Full auditability for regulated industries |
 | **Resilience** | LLM circuit-breaker → instant graceful fallback; runs fully offline | Demo never hard-fails |
@@ -180,6 +182,7 @@ No key? It runs in **offline extractive mode** — still cited, still works.
 | `GET  /api/export/rca/{id}` | downloadable RCA report (HTML) |
 | `GET  /api/export/compliance` | downloadable compliance evidence pack (HTML) |
 | `GET  /api/audit` | provenance log of recent queries + stats |
+| `POST /api/feedback` | log 👍/👎 expert validation on an answer |
 
 Interactive API docs auto-generated at **`/docs`** (Swagger UI).
 

@@ -162,6 +162,37 @@ def test_multiformat_ingestion():
     assert "PUMP-204" in parse_bytes("x.xlsx", buf.getvalue())
 
 
+def test_ocr_ingestion():
+    """OCR reads a scanned form/photo into text (Computer Vision / Document Intelligence)."""
+    try:
+        import rapidocr_onnxruntime  # noqa
+        from PIL import Image, ImageDraw
+    except Exception:
+        pytest.skip("OCR engine not installed")
+    import io
+    img = Image.new("RGB", (400, 60), "white")
+    ImageDraw.Draw(img).text((8, 20), "PUMP-204 OISD-STD-106", fill="black")
+    buf = io.BytesIO(); img.save(buf, "PNG")
+    from backend.ingestion import parse_bytes
+    text = parse_bytes("scan.png", buf.getvalue())
+    assert "PUMP-204" in text.replace(" ", "")
+
+
+def test_feedback_log():
+    from backend import audit
+    backup = audit._FEEDBACK.read_bytes() if audit._FEEDBACK.exists() else None
+    try:
+        before = audit.feedback_stats()["total"]
+        audit.log_feedback("Is PUMP-204 at risk?", "up")
+        s = audit.feedback_stats()
+        assert s["total"] == before + 1 and s["up"] >= 1
+    finally:
+        if backup is not None:
+            audit._FEEDBACK.write_bytes(backup)
+        else:
+            audit._FEEDBACK.unlink(missing_ok=True)
+
+
 def test_grounding_gate(engine):
     good = engine.ask("What do we know about PUMP-204 failure history and safety concerns?")
     assert good["grounded"] is True and good["advisory"] is None
