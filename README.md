@@ -26,7 +26,7 @@ The technology exists. The **intelligence layer that connects it** does not. Tha
 
 | # | Agent | Status | What it does |
 |---|-------|--------|--------------|
-| 1 | **Universal Document Ingestion & Knowledge Graph Agent** | ✅ Built | Ingests heterogeneous docs, extracts entities, builds a 45-node/364-edge graph |
+| 1 | **Universal Document Ingestion & Knowledge Graph Agent** | ✅ Built | Ingests heterogeneous formats — **PDF, text, spreadsheets (.xlsx/.csv), email (.eml)** — extracts entities, builds a linked knowledge graph across document types |
 | 2 | **Expert Knowledge Copilot** | ✅ Built | RAG chat: cited, confidence-scored answers in ~10ms, mobile-ready |
 | 3 | **Maintenance Intelligence & RCA Agent** | ✅ Built | Per-asset root-cause + health score + failure timeline + predictive recs |
 | 4 | **Quality & Regulatory Compliance Intelligence** | ✅ Built | OISD/Factory Act/PESO requirement-coverage matrix + gap detection |
@@ -40,7 +40,7 @@ Lessons are pre-computed analytic dashboards over the same linked corpus.
 
 | Capability | What it does | Why it matters |
 |---|---|---|
-| **Live document upload** | Drop in a PDF/txt → parsed, entity-extracted, linked into the graph, **instantly queryable** | Proves "updates automatically as new records arrive" |
+| **Live document upload** | Drop in a **PDF, spreadsheet, email or text file** → parsed, entity-extracted, linked into the graph, **instantly queryable** | Proves "updates automatically as new records arrive" across structured + unstructured formats |
 | **Operations Overview** | Executive KPI landing: at-risk assets, compliance gaps, recurring patterns + **proactive alerts** | Plant-wide situational awareness |
 | **Asset 360** | Click any entity anywhere → full profile: linked docs, connected entities, health | Cross-functional knowledge discovery |
 | **Audit evidence export** | One-click downloadable **RCA report** + **compliance evidence pack** (HTML→PDF) | Straight from the brief: "evidence packages for audits" |

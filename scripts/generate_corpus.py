@@ -364,11 +364,56 @@ show the plant runs multiple asset families — K-101 shares personnel (R. Sharm
 lubricant (ISO VG 46) with the PUMP-204 records but is otherwise a separate cluster.
 """
 
+# --- structured (spreadsheet) + unstructured (email) formats, same golden thread ---
+DOCS["equipment-register.csv"] = (
+    "Equipment Tag,Description,Unit,Area,Criticality,Last Vibration mm/s,Regulatory Ref\n"
+    "PUMP-204,Boiler Feed Water Pump,Unit-3,Area-7,Critical,7.8,OISD-STD-106\n"
+    "PUMP-205,Boiler Feed Water Pump (standby),Unit-3,Area-7,Critical,2.1,OISD-STD-106\n"
+    "MOTOR-204A,3.3kV motor driving PUMP-204,Unit-3,Area-7,Critical,2.4,Factory Act Section 21\n"
+    "VALVE-77,Discharge isolation valve for PUMP-204,Unit-3,Area-7,High,,\n"
+    "B-301,Boiler fed by PUMP-204,Unit-3,Area-7,Critical,,OISD-STD-106\n"
+    "K-101,Recycle Gas Compressor,Unit-5,Area-2,Critical,3.1,OISD-STD-106\n"
+)
+
+DOCS["email-2024-06-10-feedwater.eml"] = (
+    "From: A. Nair <a.nair@plant.example>\n"
+    "To: P. Menon <p.menon@plant.example>\n"
+    "Subject: PUMP-204 recurring seal/bearing issue - feedwater chemistry\n"
+    "Date: Mon, 10 Jun 2024 09:15:00 +0530\n"
+    "Content-Type: text/plain; charset=utf-8\n\n"
+    "P. Menon,\n\n"
+    "Following the bearing replacement under WO-2024-1187, I reviewed PUMP-204's history. "
+    "The recurring seal and bearing distress traces back to feedwater chemistry on Boiler "
+    "B-301 - scale is fouling the API Plan 11 flush orifice. This matches the 2019 seal "
+    "failure (WO-2019-0453) and near-miss NM-2023-089.\n\n"
+    "Please log feedwater conductivity every shift and flag excursions. We should also "
+    "verify OISD-STD-106 insulation on the hot lines in Area-7.\n\n"
+    "Regards,\nA. Nair\nReliability Engineering\n"
+)
+
+
+def _write_xlsx(path):
+    import openpyxl
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Vibration Log"
+    ws.append(["Date", "Equipment", "Vibration mm/s RMS", "Bearing Temp degC", "Inspector", "Notes"])
+    for row in [
+        ["2024-02-10", "PUMP-204", 6.9, 82, "A. Nair", "NDE bearing trending up; raised WO-2024-1187"],
+        ["2024-05-30", "PUMP-204", 2.4, 55, "A. Nair", "After bearing replacement (WO-2024-1187)"],
+        ["2024-06-15", "PUMP-204", 2.5, 54, "P. Menon", "Healthy post-repair; Boiler B-301 stable"],
+        ["2024-04-18", "K-101", 3.1, 48, "R. Sharma", "Recycle gas compressor routine check"],
+    ]:
+        ws.append(row)
+    wb.save(path)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for name, body in DOCS.items():
         (OUT / name).write_text(body, encoding="utf-8")
-    print(f"Wrote {len(DOCS)} documents to {OUT}")
+    _write_xlsx(OUT / "inspection-vibration-log.xlsx")
+    print(f"Wrote {len(DOCS) + 1} documents to {OUT} (incl. .csv, .eml, .xlsx)")
     # Report golden-thread coverage
     thread = "PUMP-204"
     hits = [n for n, b in DOCS.items() if thread in b]

@@ -149,6 +149,19 @@ def test_personnel_false_positive_filtered():
     assert "U. Kingdom" not in ids
 
 
+def test_multiformat_ingestion():
+    """Structured (csv/xlsx) + unstructured (eml) parsing — heterogeneous documents."""
+    from backend.ingestion import parse_bytes
+    csv_txt = parse_bytes("x.csv", b"Equipment Tag,Area\nPUMP-204,Area-7\n")
+    assert "PUMP-204" in csv_txt and "Spreadsheet" in csv_txt
+    eml_txt = parse_bytes("x.eml", b"From: a@b\nSubject: PUMP-204 note\n\nBody mentions PUMP-204.")
+    assert "PUMP-204" in eml_txt and "Email" in eml_txt
+    import openpyxl, io
+    wb = openpyxl.Workbook(); ws = wb.active; ws.append(["Tag"]); ws.append(["PUMP-204"])
+    buf = io.BytesIO(); wb.save(buf)
+    assert "PUMP-204" in parse_bytes("x.xlsx", buf.getvalue())
+
+
 def test_grounding_gate(engine):
     good = engine.ask("What do we know about PUMP-204 failure history and safety concerns?")
     assert good["grounded"] is True and good["advisory"] is None

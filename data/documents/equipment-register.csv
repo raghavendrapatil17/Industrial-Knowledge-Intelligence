@@ -1,0 +1,7 @@
+Equipment Tag,Description,Unit,Area,Criticality,Last Vibration mm/s,Regulatory Ref
+PUMP-204,Boiler Feed Water Pump,Unit-3,Area-7,Critical,7.8,OISD-STD-106
+PUMP-205,Boiler Feed Water Pump (standby),Unit-3,Area-7,Critical,2.1,OISD-STD-106
+MOTOR-204A,3.3kV motor driving PUMP-204,Unit-3,Area-7,Critical,2.4,Factory Act Section 21
+VALVE-77,Discharge isolation valve for PUMP-204,Unit-3,Area-7,High,,
+B-301,Boiler fed by PUMP-204,Unit-3,Area-7,Critical,,OISD-STD-106
+K-101,Recycle Gas Compressor,Unit-5,Area-2,Critical,3.1,OISD-STD-106

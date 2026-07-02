@@ -1,0 +1,15 @@
+From: A. Nair <a.nair@plant.example>
+To: P. Menon <p.menon@plant.example>
+Subject: PUMP-204 recurring seal/bearing issue - feedwater chemistry
+Date: Mon, 10 Jun 2024 09:15:00 +0530
+Content-Type: text/plain; charset=utf-8
+
+P. Menon,
+
+Following the bearing replacement under WO-2024-1187, I reviewed PUMP-204's history. The recurring seal and bearing distress traces back to feedwater chemistry on Boiler B-301 - scale is fouling the API Plan 11 flush orifice. This matches the 2019 seal failure (WO-2019-0453) and near-miss NM-2023-089.
+
+Please log feedwater conductivity every shift and flag excursions. We should also verify OISD-STD-106 insulation on the hot lines in Area-7.
+
+Regards,
+A. Nair
+Reliability Engineering

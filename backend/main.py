@@ -120,16 +120,9 @@ async def upload(file: UploadFile = File(...)):
     if len(raw) > MAX:
         raise HTTPException(status_code=413, detail="File too large (max 8 MB).")
     name = file.filename or "uploaded.txt"
-    if name.lower().endswith(".pdf"):
-        from io import BytesIO
-        try:
-            from pypdf import PdfReader
-            text = "\n".join((p.extract_text() or "") for p in PdfReader(BytesIO(raw)).pages)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Could not parse PDF: {e}")
-    else:
-        text = raw.decode("utf-8", errors="ignore")
-    if not text.strip():
+    from .ingestion import parse_bytes
+    text = parse_bytes(name, raw)   # PDF / xlsx / csv / eml / txt
+    if not text.strip() or text.startswith("[Could not parse"):
         raise HTTPException(status_code=400, detail="No extractable text in file.")
     log.info("ingesting uploaded document: %s (%d bytes)", name, len(raw))
     result = engine.add_document(name, text)
