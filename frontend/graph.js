@@ -48,8 +48,36 @@
         .map((e) => ({ s: idx.get(e.source), t: idx.get(e.target), rel: e.rel }))
         .filter((e) => e.s && e.t);
       this.highlight = new Set(highlightIds);
+      // adjacency for hover-neighborhood highlighting
+      this.adj = new Map(this.nodes.map((n) => [n.id, new Set()]));
+      this.edges.forEach((e) => { this.adj.get(e.s.id).add(e.t.id); this.adj.get(e.t.id).add(e.s.id); });
+      this.hiddenTypes = this.hiddenTypes || new Set();
+      this.searchHits = new Set();
       this.alpha = 1;
       this._run();
+    }
+
+    // which node ids should appear bright (null = everything bright)
+    _emphasis() {
+      if (this.hover) { const s = new Set([this.hover.id]); (this.adj.get(this.hover.id) || []).forEach((x) => s.add(x)); return s; }
+      if (this.searchHits && this.searchHits.size) return this.searchHits;
+      if (this.highlight && this.highlight.size) return this.highlight;
+      return null;
+    }
+
+    setHidden(set) { this.hiddenTypes = new Set(set); this._draw(); }
+
+    searchNodes(q) {
+      q = (q || "").trim().toLowerCase();
+      this.searchHits = new Set();
+      if (q) {
+        this.nodes.forEach((n) => {
+          if (!(this.hiddenTypes && this.hiddenTypes.has(n.type)) &&
+              (n.label || n.id).toLowerCase().includes(q)) this.searchHits.add(n.id);
+        });
+      }
+      this.alpha = Math.max(this.alpha, 0.18); this._run();
+      return this.searchHits.size;
     }
 
     _run() {
@@ -105,21 +133,27 @@
     _draw() {
       const ctx = this.ctx;
       ctx.clearRect(0, 0, this.W, this.H);
-      const hasHi = this.highlight.size > 0;
+      const hidden = this.hiddenTypes || new Set();
+      const vis = (n) => !hidden.has(n.type);
+      const E = this._emphasis();
+      const bright = (id) => !E || E.has(id);
+      const hits = this.searchHits || new Set();
       // edges
       for (const e of this.edges) {
-        const on = !hasHi || (this.highlight.has(e.s.id) && this.highlight.has(e.t.id));
-        ctx.strokeStyle = e.rel === "REFERENCES" ? "rgba(255,107,53,"+(on?0.5:0.06)+")"
-          : e.rel === "CO_OCCURS" ? "rgba(120,140,170,"+(on?0.18:0.04)+")"
-          : "rgba(140,160,190,"+(on?0.32:0.05)+")";
+        if (!vis(e.s) || !vis(e.t)) continue;
+        const on = bright(e.s.id) && bright(e.t.id);
+        ctx.strokeStyle = e.rel === "REFERENCES" ? "rgba(255,107,53," + (on ? 0.5 : 0.05) + ")"
+          : e.rel === "CO_OCCURS" ? "rgba(120,140,170," + (on ? 0.18 : 0.035) + ")"
+          : "rgba(140,160,190," + (on ? 0.32 : 0.045) + ")";
         ctx.lineWidth = e.rel === "REFERENCES" ? 1.6 : 1;
         ctx.beginPath(); ctx.moveTo(e.s.x, e.s.y); ctx.lineTo(e.t.x, e.t.y); ctx.stroke();
       }
       // nodes
       for (const n of this.nodes) {
-        const on = !hasHi || this.highlight.has(n.id);
+        if (!vis(n)) continue;
+        const on = bright(n.id);
         const col = n.color || TYPE_COLORS[n.type] || "#ccc";
-        ctx.globalAlpha = on ? 1 : 0.25;
+        ctx.globalAlpha = on ? 1 : 0.18;
         if (n.kind === "document") {
           ctx.fillStyle = col;
           this._roundRect(ctx, n.x - n.r, n.y - n.r, n.r * 2, n.r * 2, 3); ctx.fill();
@@ -127,13 +161,14 @@
           ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
           ctx.fillStyle = col; ctx.fill();
         }
+        if (hits.has(n.id)) { ctx.lineWidth = 3; ctx.strokeStyle = "#ff6b35"; ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 3, 0, Math.PI * 2); ctx.stroke(); }
         if (n === this.hover) { ctx.lineWidth = 2.5; ctx.strokeStyle = "#fff"; ctx.stroke(); }
-        // labels for entities / hovered
-        if ((on && n.kind !== "document" && n.r >= 8) || n === this.hover) {
+        // labels for entities / hovered / search hits
+        if ((on && n.kind !== "document" && n.r >= 8) || n === this.hover || hits.has(n.id)) {
           ctx.globalAlpha = on ? 0.95 : 0.3;
           ctx.fillStyle = "#e6edf3";
-          ctx.font = "11px Segoe UI, sans-serif";
-          ctx.fillText(n.label.length > 22 ? n.label.slice(0, 21) + "…" : n.label, n.x + n.r + 3, n.y + 3);
+          ctx.font = "11px Inter, Segoe UI, sans-serif";
+          ctx.fillText(n.label.length > 22 ? n.label.slice(0, 21) + "…" : n.label, n.x + n.r + 4, n.y + 3);
         }
         ctx.globalAlpha = 1;
       }

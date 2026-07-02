@@ -74,7 +74,10 @@
         <div class="panel chat-panel">
           <div class="panel-head">
             <h2>Expert Knowledge Copilot</h2>
-            <span class="hint">RAG · citations · confidence</span>
+            <div class="head-actions">
+              <span class="kbd-hint"><kbd>Ctrl</kbd><kbd>K</kbd> command palette</span>
+              <button id="clearChat" class="icon-btn" title="Clear conversation">⟲</button>
+            </div>
           </div>
           <div id="samples" class="samples"><span class="samples-label">Try</span></div>
           <div id="chat" class="chat">
@@ -116,6 +119,7 @@
           <div class="panel-head">
             <h2>Universal Ingestion &amp; Knowledge Graph</h2>
             <div class="head-actions">
+              <input id="graphSearch" class="graph-search" type="text" autocomplete="off" placeholder="Search the graph… (e.g. PUMP-204)" />
               <span id="graphStats" class="hint">—</span>
               <button id="uploadBtn" class="btn-accent">
                 <svg viewBox="0 0 24 24" class="ic-sm"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>

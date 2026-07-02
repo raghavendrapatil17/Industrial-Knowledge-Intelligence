@@ -20,7 +20,7 @@ async function init() {
   answerGraph.onDocClick = openDoc; answerGraph.onEntityClick = openAsset360;
   fullGraph = new ForceGraph($("#fullgraph"), $("#tooltip2"));
   fullGraph.onDocClick = openDoc; fullGraph.onEntityClick = openAsset360;
-  buildLegend("#legend"); buildLegend("#legend2");
+  buildLegend("#legend", false); buildLegend("#legend2", true);
 
   const s = $("#samples");
   SAMPLE_QS.forEach((q) => {
@@ -47,6 +47,9 @@ async function init() {
   $("#compExport").onclick = () => window.open("/api/export/compliance", "_blank");
   // benchmark
   $("#benchBtn").onclick = runBenchmark;
+  // graph search + clear chat
+  $("#graphSearch").addEventListener("input", (e) => { const n = fullGraph.searchNodes(e.target.value); });
+  $("#clearChat").onclick = clearConversation;
   // voice + command palette
   setupVoice();
   setupCommandPalette();
@@ -127,12 +130,38 @@ async function loadHealth() {
   } catch (e) { $("#modeBadge").textContent = "server offline"; }
 }
 
-function buildLegend(sel) {
+const _hiddenTypes = new Set();
+function buildLegend(sel, interactive) {
   const items = [["equipment","Equipment"],["personnel","Personnel"],["regulatory","Regulatory"],
     ["location","Location"],["material","Material"],["document","Document"]];
-  $(sel).innerHTML = items.map(([k,l]) =>
-    `<span class="li"><span class="dot" style="background:${TYPE_COLORS[k]}"></span>${l}</span>`).join("");
+  const host = $(sel);
+  host.innerHTML = items.map(([k,l]) =>
+    `<span class="li" data-type="${k}"><span class="dot" style="background:${TYPE_COLORS[k]}"></span>${l}</span>`).join("");
+  if (interactive) {
+    host.querySelectorAll(".li").forEach((li) => li.onclick = () => {
+      const t = li.dataset.type;
+      if (_hiddenTypes.has(t)) { _hiddenTypes.delete(t); li.classList.remove("off"); }
+      else { _hiddenTypes.add(t); li.classList.add("off"); }
+      fullGraph.setHidden(_hiddenTypes);
+    });
+  }
 }
+
+/* animate a number from 0 -> target, preserving prefix/suffix (e.g. "~10 ms", "67%") */
+function countUp(el) {
+  const m = (el.textContent || "").match(/^(\D*)(\d+)(.*)$/);
+  if (!m) return;
+  const pre = m[1], target = +m[2], suf = m[3];
+  const dur = 650, t0 = performance.now();
+  const tick = (now) => {
+    const p = Math.min((now - t0) / dur, 1);
+    const val = Math.round((1 - Math.pow(1 - p, 3)) * target);
+    el.textContent = pre + val + suf;
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function animateNumbers(sel) { document.querySelectorAll(sel).forEach(countUp); }
 
 /* ---------------- view navigation ---------------- */
 async function switchView(name) {
@@ -184,6 +213,18 @@ function renderAnswer(d) {
     });
     wrap.appendChild(ents);
   }
+  // answer actions (copy)
+  const actions = el("div", "ans-actions");
+  const copyBtn = el("button", "mini-btn", "⧉ Copy answer");
+  copyBtn.onclick = () => {
+    const srcs = d.citations.map(c => c.doc_id).join(", ");
+    navigator.clipboard.writeText(d.answer + "\n\nSources: " + srcs).then(
+      () => { copyBtn.textContent = "✓ Copied"; setTimeout(() => copyBtn.textContent = "⧉ Copy answer", 1500); },
+      () => toast("Copy failed", "", "err"));
+  };
+  actions.appendChild(copyBtn);
+  wrap.appendChild(actions);
+
   // follow-up suggestions
   if (d.follow_ups && d.follow_ups.length) {
     const fu = el("div", "followups", `<div class="fu-label">Suggested follow-ups</div>`);
@@ -211,6 +252,11 @@ function linkifyCitations(text) {
   });
 }
 
+function clearConversation() {
+  $("#chat").innerHTML = `<div class="msg system"><p>Conversation cleared. Ask a new question to search the knowledge base.</p></div>`;
+  answerGraph.setData({ nodes: [], edges: [] }, []);
+  $("#graphEmpty").style.display = "grid";
+}
 function addUser(q){ $("#chat").appendChild(el("div","msg user")).textContent=q; scrollChat(); }
 function addBotText(t){ $("#chat").appendChild(el("div","msg bot")).textContent=t; scrollChat(); }
 function addThinking(){ const d=el("div","msg bot",'<span class="typing"><span></span><span></span><span></span></span>'); $("#chat").appendChild(d); scrollChat(); return d; }
@@ -391,6 +437,7 @@ async function loadOverview() {
     else switchView(act);
   });
   body.querySelectorAll(".asset-row").forEach(r=> r.onclick = () => openAsset360(r.dataset.asset));
+  animateNumbers("#overviewBody .kpi .v");
 }
 
 async function runBenchmark() {
@@ -405,6 +452,7 @@ async function runBenchmark() {
         <div class="bench-stat"><div class="bv health-At">${s.baseline_hit_rate}%</div><div class="bk">Keyword-search baseline</div></div>
         <div class="bench-stat"><div class="bv">${s.median_time_ms}<small style="font-size:13px">ms</small></div><div class="bk">Median time-to-answer</div></div>
       </div></div>`;
+    animateNumbers("#benchResult .bench-stat .bv");
     toast("Benchmark complete", `${s.retrieval_hit_rate}% hit-rate vs ${s.baseline_hit_rate}% keyword search · ${s.median_time_ms}ms median`, "ok");
   } catch (e) { toast("Benchmark failed", "", "err"); }
   finally { btn.disabled = false; btn.textContent = "Run evaluation benchmark"; }
