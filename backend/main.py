@@ -125,7 +125,7 @@ async def upload(file: UploadFile = File(...)):
     if not text.strip() or text.startswith("[Could not parse"):
         raise HTTPException(status_code=400, detail="No extractable text in file.")
     log.info("ingesting uploaded document: %s (%d bytes)", name, len(raw))
-    result = engine.add_document(name, text)
+    result = engine.add_document(name, text, raw=raw)   # persist original bytes
     return result
 
 

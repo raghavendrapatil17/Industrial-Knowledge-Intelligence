@@ -170,7 +170,8 @@
           ctx.globalAlpha = on ? 0.95 : 0.3;
           ctx.fillStyle = "#e6edf3";
           ctx.font = "11px Inter, Segoe UI, sans-serif";
-          ctx.fillText(n.label.length > 22 ? n.label.slice(0, 21) + "…" : n.label, n.x + n.r + 4, n.y + 3);
+          const lbl = String(n.label || n.id || "");
+          ctx.fillText(lbl.length > 22 ? lbl.slice(0, 21) + "…" : lbl, n.x + n.r + 4, n.y + 3);
         }
         ctx.globalAlpha = 1;
       }
@@ -204,7 +205,8 @@
         this.hover = n; c.style.cursor = n ? "pointer" : "default";
         if (n) {
           this.tooltip.hidden = false;
-          this.tooltip.innerHTML = `<b>${n.label}</b><br>${n.kind === "document" ? n.doc_type : n.type}`;
+          const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          this.tooltip.innerHTML = `<b>${esc(n.label || n.id)}</b><br>${esc(n.kind === "document" ? n.doc_type : n.type)}`;
           this.tooltip.style.left = Math.min(p.x + 12, this.W - 200) + "px";
           this.tooltip.style.top = (p.y + 12) + "px";
         } else { this.tooltip.hidden = true; }

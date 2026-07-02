@@ -49,6 +49,7 @@ def parse_bytes(filename: str, raw: bytes) -> str:
 
 def _parse_csv(text: str) -> str:
     import csv
+    from itertools import zip_longest
     rows = list(csv.reader(io.StringIO(text)))
     if not rows:
         return text
@@ -56,7 +57,7 @@ def _parse_csv(text: str) -> str:
     out = ["DOCUMENT TYPE: Spreadsheet / Data Export", "COLUMNS: " + ", ".join(header), ""]
     for r in rows[1:]:
         # render each row as "Col: value" pairs so entity extraction & citations work
-        out.append(" | ".join(f"{h}: {v}" for h, v in zip(header, r) if v))
+        out.append(" | ".join(f"{h}: {v}" for h, v in zip_longest(header, r, fillvalue="") if v))
     return "\n".join(out)
 
 
@@ -71,8 +72,9 @@ def _parse_xlsx(raw: bytes) -> str:
             continue
         header = rows[0]
         blocks.append(f"\nSHEET: {ws.title}  |  COLUMNS: " + ", ".join(header) + "\n")
+        from itertools import zip_longest
         for r in rows[1:]:
-            blocks.append(" | ".join(f"{h}: {v}" for h, v in zip(header, r) if v))
+            blocks.append(" | ".join(f"{h}: {v}" for h, v in zip_longest(header, r, fillvalue="") if v))
     return "\n".join(blocks)
 
 

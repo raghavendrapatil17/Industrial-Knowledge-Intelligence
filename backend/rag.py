@@ -64,8 +64,10 @@ class KnowledgeEngine:
             save_graph(self.graph)
 
     # -- live ingestion: add a document at runtime ------------------------------
-    def add_document(self, filename: str, text: str) -> dict:
-        """Ingest a new document into the live index + knowledge graph."""
+    def add_document(self, filename: str, text: str, raw: bytes | None = None) -> dict:
+        """Ingest a new document into the live index + knowledge graph.
+        `raw` is the original file bytes — persisted verbatim so a binary format
+        (xlsx/pdf/eml) re-parses correctly on the next index rebuild."""
         doc_id = _safe_filename(filename)   # strip path components + illegal chars
         with self._lock:
             # de-dup name (doc_id is guaranteed to contain a "." by _safe_filename)
@@ -87,9 +89,12 @@ class KnowledgeEngine:
             # rebind (not in-place append) so concurrent readers keep a stable list
             self.chunks = self.chunks + added
 
-            # persist raw file so it survives restart / can be opened
+            # persist the ORIGINAL file so it survives restart AND re-parses correctly
             try:
-                (config.DATA_DIR / doc_id).write_text(text, encoding="utf-8")
+                if raw is not None:
+                    (config.DATA_DIR / doc_id).write_bytes(raw)
+                else:
+                    (config.DATA_DIR / doc_id).write_text(text, encoding="utf-8")
             except Exception as e:  # pragma: no cover
                 log.warning("could not persist uploaded file: %s", e)
 
@@ -194,9 +199,14 @@ class KnowledgeEngine:
         t0 = time.time()
         top_k = max(1, min(int(top_k or config.TOP_K), 50))   # clamp; reject bad values
 
+        # snapshot a consistent view of the index/graph under the lock so a concurrent
+        # live-ingestion reindex can't pair a new index with a stale by_id map (KeyError).
+        with self._lock:
+            index, by_id, chunks, graph = self.index, self.by_id, self.chunks, self.graph
+
         # 1. lexical/dense retrieval
-        hits = self.index.search(question, top_k=top_k)
-        retrieved = [self.by_id[h.chunk_id] for h in hits]
+        hits = index.search(question, top_k=top_k)
+        retrieved = [by_id[h.chunk_id] for h in hits if h.chunk_id in by_id]
         top_score = hits[0].score if hits else 0.0
 
         # 2. graph expansion: entities in question + retrieved -> neighbouring docs
@@ -205,17 +215,17 @@ class KnowledgeEngine:
             for e in extract_entities(c["text"]):
                 seed_entities.add(e.id)
 
-        expanded_nodes = neighbors_of(self.graph, list(seed_entities),
+        expanded_nodes = neighbors_of(graph, list(seed_entities),
                                       hops=config.GRAPH_EXPANSION_HOPS)
         connected_docs = [n for n in expanded_nodes
-                          if self.graph.nodes.get(n, {}).get("kind") == "document"]
+                          if graph.nodes.get(n, {}).get("kind") == "document"]
 
         # pull in a couple of graph-connected docs not already retrieved (cross-doc power)
         have = {c["doc_id"] for c in retrieved}
         for doc_id in connected_docs:
             if doc_id not in have and len(retrieved) < top_k + 3:
                 # add that document's header chunk (lowest order), robust to list order
-                doc_chunks = [c for c in self.chunks if c["doc_id"] == doc_id]
+                doc_chunks = [c for c in chunks if c["doc_id"] == doc_id]
                 extra = min(doc_chunks, key=lambda c: c["order"]) if doc_chunks else None
                 if extra:
                     retrieved.append(extra)
@@ -228,7 +238,9 @@ class KnowledgeEngine:
         citations = []
         seen_docs = set()
         for h in hits:
-            c = self.by_id[h.chunk_id]
+            c = by_id.get(h.chunk_id)
+            if not c:
+                continue
             citations.append({
                 "doc_id": c["doc_id"], "doc_type": c["doc_type"],
                 "chunk_id": c["chunk_id"],
@@ -253,20 +265,20 @@ class KnowledgeEngine:
         answer_entities = []
         seen_e = set()
         for eid in seed_entities:
-            if eid in seen_e or not self.graph.has_node(eid):
+            if eid in seen_e or not graph.has_node(eid):
                 continue
             seen_e.add(eid)
             answer_entities.append({
                 "id": eid,
-                "type": self.graph.nodes[eid].get("type", "entity"),
-                "label": self.graph.nodes[eid].get("label", eid),
+                "type": graph.nodes[eid].get("type", "entity"),
+                "label": graph.nodes[eid].get("label", eid),
             })
 
         # 5. confidence + answer subgraph
         conf, conf_label = self._confidence(hits, len(seen_docs), top_score)
         sub_nodes = set(expanded_nodes) | seen_docs | seed_entities
-        sub_nodes = {n for n in sub_nodes if self.graph.has_node(n)}
-        graph_json = subgraph_json(self.graph, sub_nodes)
+        sub_nodes = {n for n in sub_nodes if graph.has_node(n)}
+        graph_json = subgraph_json(graph, sub_nodes)
 
         entities_sorted = sorted(answer_entities, key=lambda e: e["type"])
         # grounding gate: an answer is "grounded" only if supporting sentences were found

@@ -54,6 +54,12 @@ async function init() {
   setupVoice();
   setupCommandPalette();
 
+  // graceful degradation: surface any unhandled async/API error instead of silently hanging
+  window.addEventListener("unhandledrejection", (e) => {
+    console.warn("async error:", e.reason);
+    toast("Something went wrong", "A request failed — is the server running?", "err");
+  });
+
   await loadHealth();
   await loadOverview();
 }
@@ -230,7 +236,7 @@ function renderAnswer(d) {
     const ents = el("div", "entities");
     const order = ["equipment","location","regulatory","personnel","material","document"];
     d.entities.sort((a,b)=>order.indexOf(a.type)-order.indexOf(b.type)).forEach((e) => {
-      const x = el("span", "ent", `<span class="dot" style="background:${TYPE_COLORS[e.type]||'#ccc'}"></span><b>${e.id}</b>`);
+      const x = el("span", "ent", `<span class="dot" style="background:${TYPE_COLORS[e.type]||'#ccc'}"></span><b>${escapeHtml(e.id)}</b>`);
       x.title = "Asset 360: " + e.type; x.style.cursor = "pointer";
       x.onclick = () => openAsset360(e.id);
       ents.appendChild(x);
@@ -298,7 +304,7 @@ async function renderDocs() {
   const data = await (await fetch("/api/documents")).json();
   v.innerHTML = `<p class="dim" style="margin:2px 0 12px">${data.documents.length} documents in the knowledge base — click to view.</p>`;
   data.documents.forEach((d) => {
-    const row = el("div","doc-row",`<div><div class="name">${d.doc_id}</div><div class="type">${d.doc_type}</div></div><div class="type">${d.chunks} chunk${d.chunks>1?"s":""}</div>`);
+    const row = el("div","doc-row",`<div><div class="name">${escapeHtml(d.doc_id)}</div><div class="type">${escapeHtml(d.doc_type)}</div></div><div class="type">${d.chunks} chunk${d.chunks>1?"s":""}</div>`);
     row.onclick = () => openDoc(d.doc_id); v.appendChild(row);
   });
 }
@@ -318,7 +324,7 @@ async function initRCA() {
   loaded.rca = true;
   const eq = await (await fetch("/api/equipment")).json();
   const sel = $("#rcaSelect");
-  sel.innerHTML = eq.equipment.map((e)=>`<option value="${e}">${e}</option>`).join("");
+  sel.innerHTML = (eq.equipment||[]).map((e)=>`<option value="${escapeAttr(e)}">${escapeHtml(e)}</option>`).join("");
   const preferred = eq.equipment.includes("PUMP-204") ? "PUMP-204" : eq.equipment[0];
   sel.value = preferred;
   await runRCA(preferred);
@@ -332,7 +338,7 @@ async function runRCA(id) {
   const barColor = hClass === "Healthy" ? "#3fb950" : hClass === "Watch" ? "#d29922" : "#f85149";
 
   let html = `<div class="cards">
-    <div class="card"><div class="k">Asset health</div><div class="v small health-${hClass}">${d.health_label}</div>
+    <div class="card"><div class="k">Asset health</div><div class="v small health-${hClass}">${escapeHtml(d.health_label)}</div>
       <div class="gauge"><span style="width:${d.health_score}%;background:${barColor}"></span></div></div>
     <div class="card"><div class="k">Health score</div><div class="v">${d.health_score}<span style="font-size:14px;color:var(--dim)">/100</span></div></div>
     <div class="card"><div class="k">Failure events</div><div class="v">${d.n_failure_events}</div></div>
@@ -347,7 +353,7 @@ async function runRCA(id) {
   if (d.timeline.length) {
     html += `<div class="block"><h3>Failure & inspection timeline</h3><div class="timeline">` +
       d.timeline.map(t=>`<div class="tl-item"><div class="tl-date">${t.date}</div>
-        <div class="tl-doc"><span class="doclink" data-doc="${t.doc_id}">${t.doc_id}</span> · ${t.doc_type}</div>
+        <div class="tl-doc"><span class="doclink" data-doc="${escapeAttr(t.doc_id)}">${escapeHtml(t.doc_id)}</span> · ${escapeHtml(t.doc_type)}</div>
         <div class="tl-sum">${escapeHtml(t.summary||"")}</div></div>`).join("") + `</div></div>`;
   }
 
@@ -356,7 +362,7 @@ async function runRCA(id) {
       d.recommendations.map(r=>`<li>${escapeHtml(r.text)} <span class="evlink" data-doc="${r.doc_id}">[${r.doc_id}]</span></li>`).join("") + `</ul></div>`;
   }
 
-  html += `<p class="dim">Linked documents: ${d.linked_documents.map(x=>`<span class="doclink" data-doc="${x}">${x}</span>`).join(", ") || "none"}</p>`;
+  html += `<p class="dim">Linked documents: ${(d.linked_documents||[]).map(x=>`<span class="doclink" data-doc="${escapeAttr(x)}">${escapeHtml(x)}</span>`).join(", ") || "none"}</p>`;
   body.innerHTML = html;
   body.querySelectorAll("[data-doc]").forEach((n)=> n.onclick = () => openDoc(n.dataset.doc));
 }
@@ -378,14 +384,14 @@ async function loadCompliance() {
 
   if (d.gap_list.length) {
     html += `<div class="block"><h3>Compliance gaps — act before an audit finds these</h3><ul style="margin:0;padding-left:18px;line-height:1.7">` +
-      d.gap_list.map(g=>`<li><b>${g.regulation}</b> — ${escapeHtml(g.requirement)}</li>`).join("") + `</ul></div>`;
+      d.gap_list.map(g=>`<li><b>${escapeHtml(g.regulation)}</b> — ${escapeHtml(g.requirement)}</li>`).join("") + `</ul></div>`;
   }
 
   html += `<div class="block"><h3>Requirement coverage matrix</h3><table class="tbl">
     <thead><tr><th>Status</th><th>Regulation</th><th>Area</th><th>Requirement</th><th>Evidence</th></tr></thead><tbody>` +
     d.requirements.map(r=>`<tr>
       <td><span class="st ${r.status}">${r.status}</span></td>
-      <td>${r.regulation}</td><td>${r.area}</td><td>${escapeHtml(r.requirement)}</td>
+      <td>${escapeHtml(r.regulation)}</td><td>${escapeHtml(r.area)}</td><td>${escapeHtml(r.requirement)}</td>
       <td>${r.evidence.length ? r.evidence.map(e=>`<span class="evlink" data-doc="${e}">${e}</span>`).join("<br>") : "<span class='dim'>—</span>"}</td>
     </tr>`).join("") + `</tbody></table></div>`;
 
@@ -410,10 +416,10 @@ async function loadLessons() {
     <div class="pattern ${p.severity}">
       <div class="meta"><span class="pat-sev ${p.severity}">${p.severity}</span>
         <span class="themepill">${p.occurrences}× occurrences</span></div>
-      <h4>${p.pattern}</h4>
-      <div class="pat-line"><b>Assets:</b> ${p.equipment.join(", ") || "—"}</div>
-      <div class="pat-line"><b>Window:</b> ${p.date_range}</div>
-      <div class="pat-line"><b>Evidence:</b> ${p.documents.map(x=>`<span class="doclink" data-doc="${x}">${x}</span>`).join(", ")}</div>
+      <h4>${escapeHtml(p.pattern)}</h4>
+      <div class="pat-line"><b>Assets:</b> ${escapeHtml((p.equipment||[]).join(", ")) || "—"}</div>
+      <div class="pat-line"><b>Window:</b> ${escapeHtml(p.date_range)}</div>
+      <div class="pat-line"><b>Evidence:</b> ${(p.documents||[]).map(x=>`<span class="doclink" data-doc="${escapeAttr(x)}">${escapeHtml(x)}</span>`).join(", ")}</div>
       <div class="pat-rec">${escapeHtml(p.recommendation)}</div>
     </div>`).join("") + `</div>`;
   if (!d.patterns.length) html += `<p class="dim">No recurring patterns detected.</p>`;
@@ -446,11 +452,11 @@ async function loadOverview() {
     <div class="block"><h3>Proactive alerts</h3><div id="alertList">` +
     d.alerts.map((a,i)=>`<div class="alert ${a.severity}" data-action="${a.action}" data-ref="${escapeAttr(a.ref)}">
       <span class="ico"></span>
-      <div><div class="t">${a.type}</div><div class="txt">${escapeHtml(a.message)}</div></div></div>`).join("") +
+      <div><div class="t">${escapeHtml(a.type)}</div><div class="txt">${escapeHtml(a.message)}</div></div></div>`).join("") +
     (d.alerts.length?"":`<p class="dim">No open alerts.</p>`) + `</div></div>
     <div><div class="block"><h3>Asset health ranking</h3>` +
     d.assets.map(a=>{ const c=a.health_score>=75?"#3fb950":a.health_score>=40?"#d29922":"#f85149";
-      return `<div class="asset-row" data-asset="${a.equipment}"><span class="nm">${a.equipment}</span>
+      return `<div class="asset-row" data-asset="${escapeAttr(a.equipment)}"><span class="nm">${escapeHtml(a.equipment)}</span>
       <span style="display:flex;align-items:center;gap:8px"><span class="mini-gauge"><span style="width:${a.health_score}%;background:${c}"></span></span>
       <span style="font-size:12px;color:${c};font-weight:700">${a.health_score}</span></span></div>`; }).join("") +
     `</div></div></div>`;
@@ -524,19 +530,20 @@ async function uploadFile(file) {
 async function openAsset360(id) {
   const d = await (await fetch("/api/entity/" + encodeURIComponent(id))).json();
   if (d.error) { toast("Not found", d.error, "err"); return; }
+  d.linked_documents = d.linked_documents || []; d.connected_entities = d.connected_entities || {};
   $("#a360Title").textContent = d.id;
-  $("#a360Type").textContent = d.type + " · " + d.degree + " links";
+  $("#a360Type").textContent = d.type + " · " + (d.degree||0) + " links";
   let html = "";
   if (d.health) {
     const c = d.health.score>=75?"#3fb950":d.health.score>=40?"#d29922":"#f85149";
-    html += `<div class="cards"><div class="card"><div class="k">Health</div><div class="v small" style="color:${c}">${d.health.label}</div>
+    html += `<div class="cards"><div class="card"><div class="k">Health</div><div class="v small" style="color:${c}">${escapeHtml(d.health.label)}</div>
       <div class="gauge"><span style="width:${d.health.score}%;background:${c}"></span></div></div>
       <div class="card"><div class="k">Failure events</div><div class="v">${d.health.events}</div></div></div>`;
-    if (d.health.recurring_themes.length) html += `<h4>Recurring themes</h4><div class="a360-chips">${d.health.recurring_themes.map(t=>`<span class="themepill">${escapeHtml(t)}</span>`).join("")}</div>`;
+    if ((d.health.recurring_themes||[]).length) html += `<h4>Recurring themes</h4><div class="a360-chips">${d.health.recurring_themes.map(t=>`<span class="themepill">${escapeHtml(t)}</span>`).join("")}</div>`;
     html += `<p style="margin:12px 0"><button class="btn-ghost" onclick="window.open('/api/export/rca/${encodeURIComponent(d.id)}','_blank')">⬇ Export RCA report</button></p>`;
   }
   html += `<h4>Linked documents (${d.linked_documents.length})</h4>`;
-  html += d.linked_documents.map(x=>`<div class="doc-row" data-doc="${x.doc_id}"><div><div class="name">${x.doc_id}</div><div class="type">${x.doc_type}</div></div><div class="type">${x.rel}</div></div>`).join("") || `<p class="dim">none</p>`;
+  html += d.linked_documents.map(x=>`<div class="doc-row" data-doc="${escapeAttr(x.doc_id)}"><div><div class="name">${escapeHtml(x.doc_id)}</div><div class="type">${escapeHtml(x.doc_type)}</div></div><div class="type">${escapeHtml(x.rel)}</div></div>`).join("") || `<p class="dim">none</p>`;
   const conn = Object.entries(d.connected_entities);
   if (conn.length) {
     html += `<h4>Connected entities</h4><div class="a360-chips">`;

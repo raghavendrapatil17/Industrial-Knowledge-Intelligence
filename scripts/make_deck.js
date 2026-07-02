@@ -125,7 +125,7 @@ function pageNo(s, n) {
   kicker(s, "Our Solution");
   title(s, "One knowledge graph. Five specialist agents.");
   const agents = [
-    ["Ingestion & Knowledge Graph", "Reads any document, extracts entities, links them into a live graph"],
+    ["Ingestion & Knowledge Graph", "Reads PDF, spreadsheets & email; extracts entities; links into a live graph"],
     ["Expert Copilot", "Plain-language Q&A with cited, confidence-scored answers in ~10 ms"],
     ["Maintenance & RCA", "Per-asset health, failure timeline, root cause & predictive actions"],
     ["Compliance Intelligence", "OISD / Factory Act / PESO coverage matrix with gap detection"],
@@ -149,7 +149,7 @@ function pageNo(s, n) {
   const x = M + 2 * (w + hgap), y = y0 + h + vgap;
   card(s, x, y, w, h, C.cardHi);
   s.addText("+ Platform", { x: x + 0.34, y: y + 0.3, w: w - 0.6, h: 0.4, margin: 0, fontFace: F, fontSize: 15.5, bold: true, color: C.orange });
-  s.addText("Live upload · Asset 360 · audit exports · voice query · command palette",
+  s.addText("Multi-format ingest · grounded answers · audit trail · Asset 360 · voice · command palette",
     { x: x + 0.34, y: y + 0.85, w: w - 0.6, h: 0.9, margin: 0, fontFace: F, fontSize: 12.5, color: C.mut, lineSpacingMultiple: 1.1 });
   pageNo(s, 4);
 })();
@@ -161,7 +161,7 @@ function pageNo(s, n) {
   title(s, "Ingest, link, retrieve, cite");
   const y = 2.65, bh = 1.25, TW = 12.0, aw = 0.5, bw = (TW - 3 * aw) / 4; // even 4-stage row
   const stages = [
-    ["Documents", "PDF · scans · sheets", C.card],
+    ["Documents", "PDF · sheets · email", C.card],
     ["Ingestion", "parse · chunk · NER", C.card],
     ["Knowledge Graph", "entities + relationships", C.cardHi],
     ["Hybrid Retrieval", "BM25 + graph traversal", C.card],
@@ -228,7 +228,7 @@ function pageNo(s, n) {
   const diffs = [
     ["Cross-document reasoning", "Graph traversal assembles the full story lexical search alone would miss."],
     ["Grounded to the sentence", "Every claim links to the exact supporting sentence in the source — not just the file."],
-    ["Live, self-updating", "Drop in a new document and it is entity-extracted, linked, and queryable instantly."],
+    ["Live, self-updating", "Drop in any format — PDF, spreadsheet or email — and it's entity-extracted, linked, and queryable instantly."],
   ];
   const rx = M + 6.4, rw = 6.2; let ry = 2.3;
   diffs.forEach((d) => {
