@@ -132,11 +132,16 @@ class KnowledgeEngine:
                       if self.graph.nodes[n].get("type") == "equipment")
 
     # -- grounding: sentences in a chunk that best support the question ---------
+    _STOP = {"the", "and", "for", "are", "with", "that", "this", "from", "any", "was",
+             "what", "which", "when", "where", "how", "does", "did", "has", "have",
+             "system", "report", "records", "about", "into", "near", "our", "all"}
+
     @staticmethod
     def _supporting_sentences(text: str, question: str, answer: str, k: int = 2) -> list[str]:
         import re as _re
+        # ignore stopwords so grounding keys off meaningful terms/tags, not "the"/"system"
         terms = set(t for t in _re.findall(r"[a-z0-9-]+", (question + " " + answer).lower())
-                    if len(t) > 2)
+                    if len(t) > 2 and t not in KnowledgeEngine._STOP)
         scored = []
         for sent in _re.split(r"(?<=[.!?])\s+|\n+", text):
             s = sent.strip()
@@ -187,7 +192,7 @@ class KnowledgeEngine:
 
     def ask(self, question: str, top_k: int | None = None) -> dict:
         t0 = time.time()
-        top_k = top_k or config.TOP_K
+        top_k = max(1, min(int(top_k or config.TOP_K), 50))   # clamp; reject bad values
 
         # 1. lexical/dense retrieval
         hits = self.index.search(question, top_k=top_k)

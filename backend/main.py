@@ -67,6 +67,14 @@ def audit_trail():
     return audit.recent(25)
 
 
+@app.get("/api/audit/export")
+def audit_export():
+    from fastapi.responses import PlainTextResponse
+    from . import audit
+    return PlainTextResponse(audit.export_csv(), media_type="text/csv", headers={
+        "Content-Disposition": 'attachment; filename="audit_log.csv"'})
+
+
 @app.get("/api/graph")
 def graph():
     engine = get_engine()

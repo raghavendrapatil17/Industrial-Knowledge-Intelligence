@@ -176,8 +176,28 @@ async function switchView(name) {
 }
 
 /* ================= COPILOT ================= */
+const qHistory = [];
+function pushHistory(q) {
+  const i = qHistory.indexOf(q);
+  if (i !== -1) qHistory.splice(i, 1);
+  qHistory.unshift(q);
+  if (qHistory.length > 6) qHistory.pop();
+  const host = $("#history");
+  host.hidden = qHistory.length === 0;
+  host.innerHTML = `<span class="samples-label">Recent</span>`;
+  qHistory.forEach((h) => {
+    const c = el("span", "chip");           // textContent, not innerHTML — user input is untrusted
+    c.textContent = h.length > 40 ? h.slice(0, 39) + "…" : h;
+    c.title = h; c.onclick = () => { $("#q").value = h; ask(h); };
+    host.appendChild(c);
+  });
+}
+
+const SKELETON = `<div class="sk" style="height:70px;margin-bottom:12px"></div>`
+  + `<div class="sk" style="height:150px"></div>`;
+
 async function ask(q) {
-  addUser(q); $("#q").value = "";
+  addUser(q); $("#q").value = ""; pushHistory(q);
   const btn = $("#askBtn"); btn.disabled = true;
   const thinking = addThinking();
   try {
@@ -200,7 +220,7 @@ function renderAnswer(d) {
   const wrap = el("div", "msg bot");
   wrap.appendChild(el("div", "answer-meta",
     `<span class="conf ${d.confidence_label}">${d.confidence_label} confidence · ${(d.confidence*100).toFixed(0)}%</span>` +
-    `<span class="ground ${d.grounded ? "ok" : "warn"}" title="${d.grounded ? "Supporting sentences found in cited sources" : (d.advisory||"")}">${d.grounded ? "✓ Grounded" : "⚠ Verify"}</span>` +
+    `<span class="ground ${d.grounded ? "ok" : "warn"}" title="${d.grounded ? "Supporting sentences found in cited sources" : escapeAttr(d.advisory||"")}">${d.grounded ? "✓ Grounded" : "⚠ Verify"}</span>` +
     `<span class="meta-pill">${d.mode === "llm" ? "🤖 LLM answer" : "📄 Extractive answer"}</span>` +
     `<span class="meta-pill">⚡ ${d.elapsed_ms} ms</span>` +
     `<span class="meta-pill">${d.citations.length} sources</span>`));
@@ -306,7 +326,7 @@ async function initRCA() {
 
 async function runRCA(id) {
   const body = $("#rcaBody");
-  body.innerHTML = `<p class="dim">Running RCA for ${id}…</p>`;
+  body.innerHTML = SKELETON;
   const d = await (await fetch("/api/rca/" + encodeURIComponent(id))).json();
   const hClass = d.health_label.startsWith("Healthy") ? "Healthy" : d.health_label.startsWith("Watch") ? "Watch" : "At";
   const barColor = hClass === "Healthy" ? "#3fb950" : hClass === "Watch" ? "#d29922" : "#f85149";
@@ -320,7 +340,7 @@ async function runRCA(id) {
   </div>`;
 
   if (d.recurring_themes.length)
-    html += `<div class="block"><h3>Recurring failure themes</h3>${d.recurring_themes.map(t=>`<span class="themepill">${t}</span>`).join("")}</div>`;
+    html += `<div class="block"><h3>Recurring failure themes</h3>${d.recurring_themes.map(t=>`<span class="themepill">${escapeHtml(t)}</span>`).join("")}</div>`;
 
   html += `<div class="block"><h3>Root Cause Analysis</h3><div class="narrative">${linkifyCitations(d.narrative)}</div></div>`;
 
@@ -344,6 +364,7 @@ async function runRCA(id) {
 /* ================= COMPLIANCE ================= */
 async function loadCompliance() {
   loaded.compliance = true;
+  $("#complianceBody").innerHTML = SKELETON;
   const d = await (await fetch("/api/compliance")).json();
   const s = d.summary;
   const barColor = s.coverage_pct >= 80 ? "#3fb950" : s.coverage_pct >= 50 ? "#d29922" : "#f85149";
@@ -376,6 +397,7 @@ async function loadCompliance() {
 /* ================= LESSONS LEARNED ================= */
 async function loadLessons() {
   loaded.lessons = true;
+  $("#lessonsBody").innerHTML = SKELETON;
   const d = await (await fetch("/api/lessons")).json();
   const s = d.stats;
   let html = `<div class="cards">
@@ -436,8 +458,10 @@ async function loadOverview() {
   // audit trail — recent answered queries (auditability)
   try {
     const au = await (await fetch("/api/audit")).json();
-    html += `<div class="block"><h3>Audit trail <span class="dim" style="font-weight:400;font-size:12px">· ${au.stats.total_queries} queries logged`
-      + (au.stats.grounded_pct!=null?` · ${au.stats.grounded_pct}% grounded`:``) + `</span></h3>`;
+    const auStats = au.stats || {}; au.events = au.events || [];
+    html += `<div class="block"><h3 style="justify-content:space-between"><span>Audit trail <span class="dim" style="font-weight:400;font-size:12px">· ${auStats.total_queries||0} queries logged`
+      + (auStats.grounded_pct!=null?` · ${auStats.grounded_pct}% grounded`:``) + `</span></span>`
+      + `<button class="mini-btn" onclick="window.open('/api/audit/export','_blank')">⬇ Export CSV</button></h3>`;
     if (au.events.length) {
       html += `<table class="tbl"><thead><tr><th>Time (UTC)</th><th>Question</th><th>Confidence</th><th>Grounded</th><th>Sources</th></tr></thead><tbody>` +
         au.events.slice(0,8).map(e=>`<tr>
