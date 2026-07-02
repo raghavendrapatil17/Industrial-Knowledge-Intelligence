@@ -1,0 +1,10 @@
+DOCUMENT TYPE: Shift Log
+DATE: 2024-06-15  |  SHIFT: A (06:00-14:00)  |  UNIT: Unit-3
+SHIFT IN-CHARGE: P. Menon
+
+06:20 - Took over shift. Boiler B-301 load 78%. PUMP-204 running, discharge 41 barg,
+        vibration 2.5 mm/s (healthy after WO-2024-1187 bearing job). PUMP-205 standby.
+08:45 - Routine round Area-7. VALVE-77 no passing. Seal flush 66 degC. All normal.
+11:10 - Feedwater conductivity alarm on B-301 loop. Advised water treatment. Logged as
+        possible contributor to recurring PUMP-204 seal/bearing history (per A. Nair note).
+13:30 - Handover prepared. No permits active in Area-7. PUMP-204 stable.

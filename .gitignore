@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+storage/*.json
+storage/*.pkl
+.venv/
+venv/
+*.log
+.DS_Store
+node_modules/
+.claude/
+.pytest_cache/

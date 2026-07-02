@@ -1,0 +1,13 @@
+DOCUMENT TYPE: Maintenance Work Order
+WORK ORDER NO: WO-2024-0902
+EQUIPMENT: K-101 (Recycle Gas Compressor)  |  UNIT: Unit-5  |  AREA: Area-2
+PRIORITY: Medium  |  STATUS: Closed
+RAISED: 2024-04-18  |  ASSIGNED TO: R. Sharma (Mechanical Maintenance)
+REGULATORY REF: OISD-STD-106
+
+PROBLEM: K-101 lube oil cooler fouling; oil supply temperature high at 62 degC.
+WORK PERFORMED: Cleaned cooler tube bundle; topped up Turbine Lube Oil ISO VG 46.
+Post-job oil temp 48 degC. Vibration normal.
+FINDINGS: Routine fouling. Unrelated to Unit-3 boiler feed water issues. Included here to
+show the plant runs multiple asset families — K-101 shares personnel (R. Sharma) and a
+lubricant (ISO VG 46) with the PUMP-204 records but is otherwise a separate cluster.

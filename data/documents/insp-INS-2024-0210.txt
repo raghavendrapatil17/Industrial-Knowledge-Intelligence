@@ -1,0 +1,19 @@
+DOCUMENT TYPE: Inspection Report
+REPORT NO: INS-2024-0210
+EQUIPMENT: PUMP-204 & MOTOR-204A  |  UNIT: Unit-3  |  AREA: Area-7
+INSPECTION DATE: 2024-02-10  |  INSPECTOR: A. Nair (Reliability Engineering)
+METHOD: Vibration analysis, thermography, visual
+
+RESULTS:
+- PUMP-204 NDE bearing vibration 6.9 mm/s RMS (approaching 7.1 mm/s alarm). Trend rising.
+- Bearing housing thermography: 82 degC (ambient 34 degC). Hot spot at NDE.
+- MOTOR-204A winding temperatures normal. Coupling guard intact (Factory Act Section 21 OK).
+- Seal flush line: 71 degC, within limit. No active leak at time of inspection.
+
+ASSESSMENT:
+Early-stage NDE bearing defect. Not yet at alarm but degrading. Consistent with the
+recurring seal/bearing pattern documented in NM-2023-089 and WO-2019-0453.
+
+RECOMMENDATION:
+Schedule bearing replacement within 90 days. Raised as WO-2024-1187. Keep PUMP-204 on
+watch list. Verify feedwater chemistry to Boiler B-301.

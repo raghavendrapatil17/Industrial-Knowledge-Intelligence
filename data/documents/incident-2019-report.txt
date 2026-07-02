@@ -1,0 +1,24 @@
+DOCUMENT TYPE: Incident Investigation Report
+REPORT NO: INC-2019-014
+DATE OF EVENT: 2019-01-08  |  UNIT: Unit-3, Area-7
+INVESTIGATION LEAD: S. Iyer (Safety Officer)
+REGULATORY REF: Factory Act Section 21, OISD-STD-106
+
+SUMMARY:
+A maintenance technician sustained a minor hand injury while attempting to check the
+coupling of MOTOR-204A driving PUMP-204. The coupling guard had been removed during an
+earlier job and not reinstated, and the pump auto-started on level control while the
+technician's hand was near the coupling.
+
+ROOT CAUSES:
+1. Machinery guard (Factory Act Section 21) not reinstated after previous maintenance.
+2. PUMP-204 was on auto-start (level control) but not electrically isolated; LOTO not
+   applied for what was assumed to be a "quick check".
+3. No permit raised for the task.
+
+CORRECTIVE ACTIONS:
+- Mandatory guard-reinstatement sign-off added to all rotating-equipment work orders.
+- LOTO required for ANY work inside the guard line, including inspection.
+- Reinforced in Safety Procedure SP-CSE-014.
+
+This incident is a key lesson-learned reference for all work on PUMP-204 / MOTOR-204A.

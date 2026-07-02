@@ -1,0 +1,23 @@
+DOCUMENT TYPE: Engineering Drawing Note (P&ID)
+DRAWING NO: PID-U3-BFW-001 Rev C
+UNIT: Unit-3  |  AREA: Area-7  |  BATTERY LIMIT: BL-3
+TITLE: Boiler Feed Water System — Notes accompanying P&ID
+DATE: 2018-11-02
+
+1. Boiler Feed Water Pump PUMP-204 is a horizontal multistage centrifugal pump
+   supplying feed water to Boiler B-301. Rated discharge pressure 42 barg,
+   rated flow 120 m3/h. Driven by MOTOR-204A (3.3 kV, 250 kW).
+
+2. Discharge line isolation is via VALVE-77 (10", gate). Minimum-flow recirculation
+   line returns to the deaerator through orifice FO-204.
+
+3. Mechanical seal is a cartridge single seal, API Plan 11 flush from pump discharge.
+   Seal flush temperature not to exceed 80 degC.
+
+4. PUMP-204 shares the common suction header with standby pump PUMP-205. Only one
+   pump runs at a time; the other is on auto-standby.
+
+5. All rotating equipment guards to comply with Factory Act Section 21 (fencing of
+   machinery). Hot surfaces above 60 degC to be insulated per OISD-STD-106.
+
+Reference documents: O&M Manual OM-CP-04, Safety Procedure SP-CSE-014.

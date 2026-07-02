@@ -1,0 +1,21 @@
+DOCUMENT TYPE: Regulatory Guideline (paraphrased public-style excerpt)
+STANDARD: OISD-STD-105 — Work Permit System (paraphrased summary for demo use)
+
+PURPOSE: Establishes a work permit system to control non-routine and hazardous work in
+hydrocarbon-processing facilities, ensuring hazards are identified and controlled before work begins.
+
+KEY PROVISIONS (summarised):
+1. A written work permit is required for hot work, confined space entry, working at height,
+   excavation, and other hazardous activities.
+2. Hot work permits require verification that the area is free of flammable gas/vapour and
+   that no leaking equipment is nearby. Continuous or periodic gas testing is mandated based
+   on risk.
+3. Simultaneous operations (SIMOPS) must be assessed; conflicting permits in the same area
+   must be reconciled before issue.
+4. Confined space entry requires atmosphere testing (LEL, oxygen, toxic gases), a standby
+   person, and rescue arrangements.
+5. Permits must define validity period, precautions, isolation, and acceptance by the
+   performing authority.
+
+APPLICATION: Governs permits such as PTW-2024-3320 for hot work in Unit-3 Area-7, and is the
+regulatory basis for Safety Procedure SP-CSE-014.

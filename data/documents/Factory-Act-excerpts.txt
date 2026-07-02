@@ -1,0 +1,17 @@
+DOCUMENT TYPE: Regulatory Reference (paraphrased public-style excerpt)
+ACT: The Factories Act, 1948 (India) — paraphrased summary of selected sections for demo use
+
+SECTION 21 — FENCING OF MACHINERY (summary):
+Every dangerous part of machinery, including moving parts of prime movers, transmission
+machinery, and every part that is a moving part of any machine, must be securely fenced/guarded.
+Guards must be maintained and kept in position while the machinery is in motion. Relevant to
+all rotating equipment such as PUMP-204 / MOTOR-204A couplings.
+
+SECTION 36 — PRECAUTIONS AGAINST DANGEROUS FUMES, GASES ETC. (summary):
+No person shall enter any confined space in which dangerous fumes are likely to be present
+unless it is certified safe, or unless wearing suitable breathing apparatus with a lifeline
+and a person keeping watch outside. Governs confined space entry procedures such as SP-CSE-014.
+
+SECTION 7A — GENERAL DUTIES OF OCCUPIER (summary):
+Ensure, so far as reasonably practicable, the health, safety and welfare of all workers,
+including safe systems of work, safe plant and machinery, and adequate information/training.

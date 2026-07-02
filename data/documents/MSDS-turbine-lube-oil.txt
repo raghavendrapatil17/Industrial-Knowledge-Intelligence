@@ -1,0 +1,18 @@
+DOCUMENT TYPE: Material Safety Data Sheet (SDS)
+PRODUCT: Turbine Lube Oil ISO VG 46
+SECTION 1 — IDENTIFICATION: Mineral-oil-based turbine/circulating oil. Used in rotating
+equipment lubrication systems including boiler feed water pump sets (e.g. PUMP-204 area).
+
+SECTION 2 — HAZARDS: Combustible liquid. Flash point > 200 degC (open cup). Mist or spray
+onto hot surfaces above the flash point can ignite. Prolonged skin contact may cause irritation.
+
+SECTION 4 — FIRST AID: Skin — wash with soap and water. Eyes — rinse 15 minutes. Inhalation
+of mist — move to fresh air.
+
+SECTION 5 — FIRE FIGHTING: Use dry chemical, CO2, or foam. Do NOT use water jet (spreads fire).
+
+SECTION 7 — HANDLING & STORAGE: Keep away from ignition sources and hot surfaces. Relevant to
+hot-work permits in Area-7 where lube systems and hot piping coexist (see SP-CSE-014).
+
+SECTION 8 — EXPOSURE CONTROLS: Oil mist exposure limit 5 mg/m3 (8-hr TWA). Use gloves and
+goggles when handling.

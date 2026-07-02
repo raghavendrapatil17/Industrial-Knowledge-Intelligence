@@ -1,0 +1,19 @@
+DOCUMENT TYPE: Operating Procedure
+PROCEDURE NO: OP-B301-02 Rev 2
+TITLE: Boiler B-301 Startup and Feedwater Control — Unit-3
+OWNER: Operations, Unit-3
+
+FEEDWATER SUPPLY:
+Boiler B-301 feed water is supplied by boiler feed water pump PUMP-204 (duty) with
+PUMP-205 on standby. Maintain drum level 50% +/- 10%. Minimum discharge pressure 40 barg.
+
+STARTUP NOTES:
+1. Confirm PUMP-204 healthy — check latest vibration and seal-flush temperature. Do not
+   start B-301 firing if PUMP-204 is under a maintenance hold (see current work orders).
+2. Feedwater chemistry (conductivity, hardness) must be within limits. Poor feedwater
+   quality has historically driven seal scaling on PUMP-204 (ref WO-2019-0453, WO-2024-1187).
+3. On loss of PUMP-204, feed auto-transfers to PUMP-205; investigate PUMP-204 trip cause
+   before returning to service.
+
+SAFETY:
+All work near B-301 feedwater pumps in Area-7 follows SP-CSE-014 and requires a permit.

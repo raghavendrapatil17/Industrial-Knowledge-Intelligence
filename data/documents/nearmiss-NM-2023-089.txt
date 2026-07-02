@@ -1,0 +1,27 @@
+DOCUMENT TYPE: Near-Miss Report
+REPORT NO: NM-2023-089
+LOCATION: Unit-3, Area-7 (near PUMP-204)  |  DATE: 2023-09-21  |  SHIFT: B
+REPORTED BY: P. Menon (Shift In-Charge)
+REVIEWED BY: S. Iyer (Safety Officer)
+REGULATORY REF: OISD-STD-105, Factory Act Section 36
+
+DESCRIPTION OF EVENT:
+During routine rounds, operator noticed a fine spray of hot condensate and hydrocarbon
+odour near the PUMP-204 mechanical seal area. Seal flush line temperature was reading
+95 degC. A maintenance fitter was about to begin unrelated hot work (grinding) on an
+adjacent pipe support under permit PTW-2023-2201, approximately 3 metres away.
+
+POTENTIAL CONSEQUENCE:
+Leaking hydrocarbon/condensate mist in proximity to a hot-work ignition source. Had the
+grinding proceeded, a flash fire was credible. Confined layout of Area-7 near BL-3
+would have hampered escape.
+
+IMMEDIATE ACTION:
+- Hot work stopped; PTW-2023-2201 suspended.
+- PUMP-204 switched to standby PUMP-205; PUMP-204 isolated via VALVE-77.
+- Area gas-tested; LEL 4%, ventilation increased.
+
+LESSON LEARNED / RECOMMENDATION:
+Permit-to-work risk assessment must explicitly check adjacent equipment seal integrity
+before authorising hot work in Area-7. Cross-reference active seal-leak history (PUMP-204
+has repeat seal issues per WO-2019-0453). Reinforce simultaneous-operations (SIMOPS) review.

@@ -1,0 +1,25 @@
+DOCUMENT TYPE: O&M Manual (Equipment)
+MANUAL NO: OM-CP-04
+TITLE: Horizontal Multistage Centrifugal Pump — Operation & Maintenance (paraphrased excerpt)
+APPLIES TO: PUMP-204, PUMP-205 class boiler feed water pumps
+
+MECHANICAL SEAL:
+The pump is fitted with a cartridge mechanical seal using an API Plan 11 flush taken from
+pump discharge. Seal flush temperature should remain below 80 degC. A rising flush
+temperature indicates orifice fouling or inadequate cooling and can cause rapid seal-face
+wear. If flush temperature exceeds the limit, investigate before continued operation.
+
+BEARINGS:
+Anti-friction bearings at drive and non-drive ends. Normal vibration below 4.5 mm/s RMS;
+alarm typically set around 7.1 mm/s and trip around 11.2 mm/s. Rising non-drive-end
+vibration with elevated housing temperature indicates bearing degradation. Lubricate with
+manufacturer-approved grease compatible with Turbine Lube Oil ISO VG 46 systems.
+
+COMMON FAILURE MODES:
+- Seal failure from flush overheating (most common; often water-chemistry driven).
+- Bearing spalling from contamination or repeated thermal cycling.
+- Coupling misalignment causing elevated vibration.
+
+MAINTENANCE:
+Positively isolate and apply LOTO before any intrusive work. Reinstate all guards before
+restart in accordance with statutory machinery-fencing requirements.

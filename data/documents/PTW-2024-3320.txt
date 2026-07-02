@@ -1,0 +1,19 @@
+DOCUMENT TYPE: Permit to Work
+PERMIT NO: PTW-2024-3320
+TYPE: Hot Work  |  LOCATION: Unit-3, Area-7 (near PUMP-204 discharge)
+VALID: 2024-06-04 08:00 to 2024-06-04 17:00
+ISSUED BY: S. Iyer (Safety Officer)  |  ACCEPTED BY: R. Sharma (Mechanical)
+GOVERNING PROCEDURE: SP-CSE-014  |  REGULATORY REF: OISD-STD-105
+
+WORK: Weld repair of pipe support bracket near PUMP-204 discharge line, following
+bearing replacement under WO-2024-1187.
+
+PRECONTROLS (verified before issue):
+- PUMP-204 confirmed on standby (PUMP-205 running); PUMP-204 isolated via VALVE-77. YES
+- No active seal leak on PUMP-204 (checked against NM-2023-089 history). YES
+- Gas test LEL 0%, O2 20.9%. YES
+- Fire watch posted; extinguisher and hose available. YES
+- SIMOPS review completed — no conflicting permits in Area-7. YES
+
+NOTES: This permit references lessons from NM-2023-089 — adjacent seal integrity was
+explicitly verified before authorising hot work.

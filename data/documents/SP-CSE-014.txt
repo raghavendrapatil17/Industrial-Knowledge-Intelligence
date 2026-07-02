@@ -1,0 +1,23 @@
+DOCUMENT TYPE: Safety Procedure
+PROCEDURE NO: SP-CSE-014 Rev 4
+TITLE: Confined Space Entry and Hot Work — Unit-3 Boiler Feed Water Area (Area-7)
+EFFECTIVE: 2022-06-01  |  OWNER: S. Iyer (Safety Officer)
+REGULATORY BASIS: OISD-STD-105, Factory Act Section 36 (confined spaces)
+
+SCOPE:
+Applies to confined space entry and hot work in Unit-3, Area-7, including work on or
+adjacent to PUMP-204, PUMP-205, VALVE-77 and associated Boiler B-301 feedwater lines.
+
+KEY REQUIREMENTS:
+1. A valid Permit-to-Work (PTW) is mandatory. Hot work and confined space entry require
+   separate permits and a documented SIMOPS (simultaneous operations) review.
+2. Before hot work in Area-7, verify no active seal or flange leaks on nearby rotating
+   equipment. Rotating pumps with a history of seal leakage (e.g. PUMP-204, ref
+   WO-2019-0453, NM-2023-089) require a positive isolation check.
+3. Gas testing: LEL must be below 5% and O2 between 19.5-23.5% before and during entry.
+4. Continuous gas monitoring and a standby attendant are required for confined space entry.
+5. Machinery guards must be in place per Factory Act Section 21 before restart.
+
+EMERGENCY:
+On gas alarm or visible leak, stop all hot work, evacuate Area-7 via BL-3 muster point,
+and notify the Shift In-Charge and Safety Officer immediately.

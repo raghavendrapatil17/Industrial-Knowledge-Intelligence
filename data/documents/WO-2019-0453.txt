@@ -1,0 +1,25 @@
+DOCUMENT TYPE: Maintenance Work Order
+WORK ORDER NO: WO-2019-0453
+EQUIPMENT: PUMP-204 (Boiler Feed Water Pump)  |  UNIT: Unit-3  |  AREA: Area-7
+PRIORITY: High  |  STATUS: Closed
+RAISED: 2019-03-14  |  COMPLETED: 2019-03-17
+ASSIGNED TO: R. Sharma (Mechanical Maintenance)
+REGULATORY REF: Factory Act Section 21
+
+PROBLEM DESCRIPTION:
+PUMP-204 mechanical seal reported leaking during morning shift. Seal flush line
+running hot (measured 91 degC, above the 80 degC limit). Discharge pressure fluctuating
+between 38-42 barg. Suspected seal face wear and clogged API Plan 11 flush orifice.
+
+WORK PERFORMED:
+- Isolated PUMP-204 via VALVE-77, blinded suction and discharge, LOTO applied.
+- Replaced cartridge mechanical seal (P/N SEAL-204-CS).
+- Cleaned and re-sized Plan 11 flush orifice; verified flush temp 68 degC on restart.
+- Aligned pump-to-MOTOR-204A coupling; final rim/face within 0.05 mm.
+
+FINDINGS:
+Root cause: flush orifice partially blocked with scale, causing insufficient seal
+cooling and premature seal face wear. Recommend water treatment review of feedwater
+to Boiler B-301.
+
+FOLLOW-UP: Monitor seal flush temperature weekly. Trend bearing vibration.

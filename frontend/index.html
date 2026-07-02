@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Industrial Knowledge Intelligence — Unified Asset & Operations Brain</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff6b35'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white'%3E%E2%9A%99%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+      <div class="side-logo">
+        <div class="logo">⚙</div>
+        <div class="side-logo-txt">
+          <h1>Knowledge Intelligence</h1>
+          <p>Unified Operations Brain</p>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <button class="nav active" data-view="overview" title="Operations Overview">
+          <svg viewBox="0 0 24 24" class="ic"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span>Overview</span>
+        </button>
+        <button class="nav" data-view="copilot" title="Expert Copilot">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg>
+          <span>Expert Copilot</span>
+        </button>
+        <button class="nav" data-view="graph" title="Ingestion & Knowledge Graph">
+          <svg viewBox="0 0 24 24" class="ic"><circle cx="5" cy="6" r="2.4"/><circle cx="19" cy="7" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M7 7l3.5 9M17 8.5l-4 8M7 6.5h9.5"/></svg>
+          <span>Ingestion &amp; Graph</span>
+        </button>
+        <button class="nav" data-view="rca" title="Maintenance &amp; RCA">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2l-6 6a1.4 1.4 0 0 0 2 2l6-6a4 4 0 0 0 5.2-5.2l-2.5 2.5-2-2 2.5-2.5z"/></svg>
+          <span>Maintenance &amp; RCA</span>
+        </button>
+        <button class="nav" data-view="compliance" title="Compliance">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span>Compliance</span>
+        </button>
+        <button class="nav" data-view="lessons" title="Lessons Learned">
+          <svg viewBox="0 0 24 24" class="ic"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+          <span>Lessons Learned</span>
+        </button>
+      </nav>
+
+      <div class="side-foot">
+        <span id="modeBadge" class="badge badge-muted">connecting…</span>
+        <span id="docBadge" class="badge badge-muted">— docs</span>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN ===================== -->
+    <main id="views">
+      <!-- ============ VIEW 0: OVERVIEW ============ -->
+      <section id="view-overview" class="view scroll-view active">
+        <div class="dash">
+          <div class="dash-head">
+            <div>
+              <h2>Operations Overview</h2>
+              <p class="dim">Plant-wide intelligence at a glance — asset health, compliance posture,
+              and recurring risks, synthesised across every agent.</p>
+            </div>
+            <button id="benchBtn" class="btn-ghost">Run evaluation benchmark</button>
+          </div>
+          <div id="overviewBody"><div class="skeleton-grid"><span></span><span></span><span></span><span></span></div></div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW 1: COPILOT ============ -->
+      <section id="view-copilot" class="view layout">
+        <div class="panel chat-panel">
+          <div class="panel-head">
+            <h2>Expert Knowledge Copilot</h2>
+            <span class="hint">RAG · citations · confidence</span>
+          </div>
+          <div id="samples" class="samples"><span class="samples-label">Try</span></div>
+          <div id="chat" class="chat">
+            <div class="msg system">
+              <p>Ask an operational, maintenance, or safety question. I search every document,
+              link them through the knowledge graph, and answer with <strong>clickable citations</strong>
+              and a <strong>confidence score</strong>. Entity chips are clickable → Asset 360.</p>
+              <p class="dim">Golden-thread demo: <em>“What do we know about PUMP-204's failure
+              history and any related safety concerns?”</em></p>
+            </div>
+          </div>
+          <form id="askForm" class="ask">
+            <input id="q" type="text" autocomplete="off" placeholder="Ask about equipment, permits, procedures, regulations…" />
+            <button id="micBtn" type="button" class="mic-btn" title="Ask by voice (field mode)" aria-label="Voice input">
+              <svg viewBox="0 0 24 24" class="ic-sm"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+            </button>
+            <button id="askBtn" type="submit">Ask</button>
+          </form>
+        </div>
+
+        <div class="panel graph-panel">
+          <div class="panel-head tabs">
+            <button class="tab active" data-tab="answer">Answer Graph</button>
+            <button class="tab" data-tab="docs">Documents</button>
+          </div>
+          <div id="graphWrap" class="graph-wrap">
+            <canvas id="graph"></canvas>
+            <div id="graphEmpty" class="graph-empty">Ask a question to see the linked knowledge subgraph.</div>
+            <div class="legend" id="legend"></div>
+            <div class="graph-tooltip" id="tooltip" hidden></div>
+          </div>
+          <div id="docsView" class="docs-view" hidden></div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW 2: KNOWLEDGE GRAPH + UPLOAD ============ -->
+      <section id="view-graph" class="view">
+        <div class="panel full-panel">
+          <div class="panel-head">
+            <h2>Universal Ingestion &amp; Knowledge Graph</h2>
+            <div class="head-actions">
+              <span id="graphStats" class="hint">—</span>
+              <button id="uploadBtn" class="btn-accent">
+                <svg viewBox="0 0 24 24" class="ic-sm"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+                Upload document
+              </button>
+              <input id="fileInput" type="file" accept=".txt,.md,.pdf" hidden />
+            </div>
+          </div>
+          <div class="graph-wrap">
+            <canvas id="fullgraph"></canvas>
+            <div class="legend" id="legend2"></div>
+            <div class="graph-tooltip" id="tooltip2" hidden></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW 3: MAINTENANCE & RCA ============ -->
+      <section id="view-rca" class="view scroll-view">
+        <div class="dash">
+          <div class="dash-head">
+            <div>
+              <h2>Maintenance Intelligence &amp; RCA Agent</h2>
+              <p class="dim">Fuses work orders, inspections, near-miss &amp; incident history into a
+              root-cause &amp; predictive-maintenance picture per asset.</p>
+            </div>
+            <div class="rca-controls">
+              <div class="rca-picker">
+                <label>Equipment</label>
+                <select id="rcaSelect"></select>
+              </div>
+              <button id="rcaExport" class="btn-ghost">Export RCA report</button>
+            </div>
+          </div>
+          <div id="rcaBody" class="rca-body"><p class="dim">Select an asset to run RCA…</p></div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW 4: COMPLIANCE ============ -->
+      <section id="view-compliance" class="view scroll-view">
+        <div class="dash">
+          <div class="dash-head">
+            <div>
+              <h2>Quality &amp; Regulatory Compliance Intelligence</h2>
+              <p class="dim">Maps OISD, Factory Act &amp; PESO requirements against current procedures
+              and records — surfacing compliance gaps before an audit finds them.</p>
+            </div>
+            <button id="compExport" class="btn-ghost">Export evidence pack</button>
+          </div>
+          <div id="complianceBody"><p class="dim">Loading compliance analysis…</p></div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW 5: LESSONS LEARNED ============ -->
+      <section id="view-lessons" class="view scroll-view">
+        <div class="dash">
+          <div class="dash-head">
+            <div>
+              <h2>Lessons Learned &amp; Failure Intelligence</h2>
+              <p class="dim">Analyses incident, near-miss &amp; inspection history across the plant to
+              surface recurring failure patterns invisible to any single review.</p>
+            </div>
+          </div>
+          <div id="lessonsBody"><p class="dim">Analysing failure history…</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- document modal -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h3 id="modalTitle">Document</h3><span id="modalType" class="badge badge-doc"></span></div>
+        <button id="modalClose" class="icon-btn">✕</button>
+      </div>
+      <pre id="modalBody" class="modal-body"></pre>
+    </div>
+  </div>
+
+  <!-- asset 360 modal -->
+  <div id="asset360" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><h3 id="a360Title">Asset 360</h3><span id="a360Type" class="badge badge-doc"></span></div>
+        <button id="a360Close" class="icon-btn">✕</button>
+      </div>
+      <div id="a360Body" class="a360-body"></div>
+    </div>
+  </div>
+
+  <!-- command palette -->
+  <div id="cmdk" class="cmdk" hidden>
+    <div class="cmdk-box">
+      <input id="cmdkInput" type="text" autocomplete="off" placeholder="Jump to a view, open an asset, or ask a question…" />
+      <div id="cmdkList" class="cmdk-list"></div>
+      <div class="cmdk-foot"><span>↑ ↓ navigate</span><span>↵ select</span><span>esc close</span></div>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts"></div>
+
+  <script src="/static/graph.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

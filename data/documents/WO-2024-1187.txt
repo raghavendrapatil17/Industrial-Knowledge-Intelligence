@@ -1,0 +1,26 @@
+DOCUMENT TYPE: Maintenance Work Order
+WORK ORDER NO: WO-2024-1187
+EQUIPMENT: PUMP-204 (Boiler Feed Water Pump)  |  UNIT: Unit-3  |  AREA: Area-7
+PRIORITY: High  |  STATUS: Closed
+RAISED: 2024-05-30  |  COMPLETED: 2024-06-04
+ASSIGNED TO: A. Nair (Reliability Engineering)
+REGULATORY REF: OISD-STD-106
+
+PROBLEM DESCRIPTION:
+PUMP-204 non-drive-end bearing showing rising vibration. Latest reading 7.8 mm/s RMS
+(alarm at 7.1 mm/s, trip at 11.2 mm/s) — up from 3.2 mm/s six months ago. Bearing
+housing temperature 84 degC. Correlates with prior seal history under WO-2019-0453.
+
+WORK PERFORMED:
+- Replaced both pump bearings (DE and NDE); found NDE bearing with spalling on outer race.
+- Re-greased with Turbine Lube Oil ISO VG 46 compatible grease per OEM spec.
+- Re-checked coupling alignment to MOTOR-204A. Vibration after job: 2.4 mm/s RMS.
+
+FINDINGS:
+Root cause: bearing degradation accelerated by repeated seal-flush overheating events
+(see near-miss NM-2023-089 and WO-2019-0453). Reliability flag raised: recurring seal/
+bearing distress on PUMP-204 indicates a systemic feedwater-quality issue upstream of
+Boiler B-301, not an isolated component failure.
+
+RECOMMENDATION: Add PUMP-204 to the critical-equipment vibration watch list. Review
+feedwater chemistry. Consider seal upgrade to API Plan 23 (dedicated cooler).
