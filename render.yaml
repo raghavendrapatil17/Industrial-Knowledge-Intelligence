@@ -1,0 +1,11 @@
+# One-click deploy to Render (free tier) — gives a public demo URL.
+# Steps: render.com -> New + -> Blueprint -> connect this GitHub repo -> Apply.
+services:
+  - type: web
+    name: industrial-knowledge-intelligence
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: LLM_PROVIDER
+        value: offline

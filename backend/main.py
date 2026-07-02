@@ -5,6 +5,7 @@ Run:  python -m backend.main      (or: uvicorn backend.main:app --reload)
 """
 from __future__ import annotations
 
+import os
 import logging
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
@@ -212,10 +213,13 @@ if config.FRONTEND_DIR.exists():
 
 if __name__ == "__main__":
     import uvicorn
+    # honour the hosting platform's $PORT (Render/HF Spaces/Railway); default 8000 locally.
+    port = int(os.getenv("PORT", "8000"))
+    host = "0.0.0.0" if os.getenv("PORT") else "127.0.0.1"
     print("=" * 60)
     print(" Industrial Knowledge Intelligence")
     print(f" LLM provider : {config.LLM_PROVIDER}  (key configured: {config.llm_available()})")
     print(f" Index built  : {config.INDEX_PATH.exists() and config.GRAPH_PATH.exists()}")
-    print(" Open         : http://127.0.0.1:8000")
+    print(f" Open         : http://127.0.0.1:{port}")
     print("=" * 60)
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host=host, port=port)
