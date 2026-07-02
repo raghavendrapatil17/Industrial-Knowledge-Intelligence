@@ -2,6 +2,9 @@
 
 > **ET AI Hackathon 2026 · Problem Statement #8** — *AI for Industrial Knowledge Intelligence*
 
+### ▶ **[Live demo](https://industrial-knowledge-intelligence-sz8a.onrender.com)** &nbsp;·&nbsp; runs fully in the browser
+*(Free hosting — the first load after a period of inactivity takes ~50 seconds to wake up, then it's instant.)*
+
 An AI platform that ingests a plant's **heterogeneous documents** — P&IDs, maintenance work
 orders, near-miss reports, inspection records, safety procedures, permits, regulatory
 references — links them into a **knowledge graph**, and lets any engineer ask a question in
