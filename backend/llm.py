@@ -40,8 +40,10 @@ def _build_user_prompt(question: str, contexts: list[dict]) -> str:
 # instead of paying the API round-trip + error latency on every request. ---
 _llm_disabled = False
 _llm_disabled_reason = ""
-_PERMANENT = ("insufficient_quota", "invalid_api_key", "authentication",
-              "401", "403", "429", "permission")
+# Only PERMANENT (config-level) failures trip the breaker for the session. Transient
+# errors (rate-limit 429, 5xx, timeouts) fall back for that one call and retry next time.
+_PERMANENT = ("insufficient_quota", "invalid_api_key", "invalid_x_api_key",
+              "authentication", "permission_error", "401")
 
 
 def llm_status() -> dict:
@@ -94,12 +96,15 @@ def _openai(question: str, contexts: list[dict]) -> str:  # pragma: no cover
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": _build_user_prompt(question, contexts)},
     ]
-    # SDK 2.x / newer models prefer max_completion_tokens; fall back to max_tokens.
+    # SDK 2.x / newer models prefer max_completion_tokens; older ones need max_tokens.
+    # The SDK may raise TypeError (unknown kwarg) OR an API 400 (BadRequestError) — handle both.
     try:
         resp = client.chat.completions.create(
             model=config.OPENAI_MODEL, max_completion_tokens=900, messages=messages,
         )
-    except TypeError:
+    except Exception as e:
+        if "max_tokens" not in str(e) and "max_completion_tokens" not in str(e) and not isinstance(e, TypeError):
+            raise
         resp = client.chat.completions.create(
             model=config.OPENAI_MODEL, max_tokens=900, messages=messages,
         )

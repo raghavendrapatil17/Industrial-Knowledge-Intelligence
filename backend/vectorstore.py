@@ -41,7 +41,8 @@ class HybridIndex:
         self.chunks = chunks
         self.ids = [c["chunk_id"] for c in chunks]
         self._corpus_tokens = [tokenize(c["text"]) for c in chunks]
-        self.bm25 = BM25Okapi(self._corpus_tokens)
+        # BM25Okapi divides by corpus size — guard the empty-corpus case
+        self.bm25 = BM25Okapi(self._corpus_tokens) if self._corpus_tokens else None
         self._dense = None
         self._embeddings = None
         if config.USE_DENSE_EMBEDDINGS:
@@ -60,6 +61,8 @@ class HybridIndex:
             self._dense = None
 
     def search(self, query: str, top_k: int = 6) -> list[Hit]:
+        if self.bm25 is None:
+            return []
         q_tokens = tokenize(query)
         bm = self.bm25.get_scores(q_tokens)
         bm_max = max(bm) if len(bm) and max(bm) > 0 else 1.0

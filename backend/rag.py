@@ -12,8 +12,10 @@ Pipeline for a question:
 from __future__ import annotations
 
 import json
+import re
 import time
 import logging
+import threading
 
 from . import config
 from .vectorstore import HybridIndex
@@ -25,11 +27,23 @@ from . import llm
 log = logging.getLogger("iki.engine")
 
 
+def _safe_filename(name: str) -> str:
+    """Reduce an uploaded filename to a safe basename (no path traversal / illegal chars)."""
+    name = (name or "").replace("\\", "/").split("/")[-1]
+    name = re.sub(r'[<>:"|?*\x00-\x1f]', "_", name).strip().lstrip(".")
+    if not name:
+        name = "upload.txt"
+    if "." not in name:
+        name += ".txt"
+    return name
+
+
 class KnowledgeEngine:
     def __init__(self):
         data = json.loads(config.INDEX_PATH.read_text(encoding="utf-8"))
         self.chunks: list[dict] = data["chunks"]
         self.graph = load_graph()
+        self._lock = threading.RLock()   # guards live-ingestion mutations
         self._reindex(persist=False, rebuild_graph=False)
 
     # -- (re)build all derived state from self.chunks ---------------------------
@@ -52,31 +66,34 @@ class KnowledgeEngine:
     # -- live ingestion: add a document at runtime ------------------------------
     def add_document(self, filename: str, text: str) -> dict:
         """Ingest a new document into the live index + knowledge graph."""
-        doc_id = filename
-        # de-dup name
-        if doc_id in self._doc_type:
-            stem, _, ext = doc_id.rpartition(".")
-            n = 2
-            while f"{stem}-{n}.{ext}" in self._doc_type:
-                n += 1
-            doc_id = f"{stem}-{n}.{ext}"
+        doc_id = _safe_filename(filename)   # strip path components + illegal chars
+        with self._lock:
+            # de-dup name (doc_id is guaranteed to contain a "." by _safe_filename)
+            if doc_id in self._doc_type:
+                stem, _, ext = doc_id.rpartition(".")
+                n = 2
+                while f"{stem}-{n}.{ext}" in self._doc_type:
+                    n += 1
+                doc_id = f"{stem}-{n}.{ext}"
 
-        doc_type = detect_doc_type(text, doc_id)
-        sections = _split_sections(text)
-        before_nodes, before_edges = self.graph.number_of_nodes(), self.graph.number_of_edges()
+            doc_type = detect_doc_type(text, doc_id)
+            sections = _split_sections(text)
+            before_nodes, before_edges = self.graph.number_of_nodes(), self.graph.number_of_edges()
 
-        for i, sect in enumerate(sections):
-            self.chunks.append({
+            added = [{
                 "chunk_id": f"{doc_id}::{i}", "doc_id": doc_id,
                 "doc_type": doc_type, "text": sect, "order": i,
-            })
-        # persist raw file so it survives restart / can be opened
-        try:
-            (config.DATA_DIR / doc_id).write_text(text, encoding="utf-8")
-        except Exception as e:  # pragma: no cover
-            log.warning("could not persist uploaded file: %s", e)
+            } for i, sect in enumerate(sections)]
+            # rebind (not in-place append) so concurrent readers keep a stable list
+            self.chunks = self.chunks + added
 
-        self._reindex(persist=True, rebuild_graph=True)
+            # persist raw file so it survives restart / can be opened
+            try:
+                (config.DATA_DIR / doc_id).write_text(text, encoding="utf-8")
+            except Exception as e:  # pragma: no cover
+                log.warning("could not persist uploaded file: %s", e)
+
+            self._reindex(persist=True, rebuild_graph=True)
 
         ents = extract_entities(text)
         linked_docs = set()
@@ -192,8 +209,9 @@ class KnowledgeEngine:
         have = {c["doc_id"] for c in retrieved}
         for doc_id in connected_docs:
             if doc_id not in have and len(retrieved) < top_k + 3:
-                # add that document's most relevant chunk (its first / header chunk)
-                extra = next((c for c in self.chunks if c["doc_id"] == doc_id), None)
+                # add that document's header chunk (lowest order), robust to list order
+                doc_chunks = [c for c in self.chunks if c["doc_id"] == doc_id]
+                extra = min(doc_chunks, key=lambda c: c["order"]) if doc_chunks else None
                 if extra:
                     retrieved.append(extra)
                     have.add(doc_id)

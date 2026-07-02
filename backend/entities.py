@@ -88,11 +88,18 @@ def extract_entities(text: str) -> list[ExtractedEntity]:
                 found[eid] = ExtractedEntity(eid, etype, eid)
             claimed_spans.append(span)
 
-    # Filter out obvious personnel false-positives (e.g. "ISO VG" won't match; but guard)
-    cleaned = {
-        eid: e for eid, e in found.items()
-        if not (e.type == "personnel" and any(w in eid.upper() for w in ("DEGC", "ISO", "RMS")))
-    }
+    # Filter personnel false-positives: an initial + a common non-name word
+    # (e.g. "U. Kingdom", "e.g. Started") is not a person.
+    _NOT_SURNAMES = {"KINGDOM", "STATES", "SECTION", "STANDARD", "REPORT", "ORDER",
+                     "AREA", "UNIT", "NOTES", "STARTED", "CHANGE", "DEGC", "ISO", "RMS",
+                     "APPROX", "MINIMUM", "MAXIMUM", "NORMAL", "STATUS", "TYPE"}
+    cleaned = {}
+    for eid, e in found.items():
+        if e.type == "personnel":
+            surname = eid.split()[-1].upper() if " " in eid else ""
+            if surname in _NOT_SURNAMES or any(w in eid.upper() for w in ("DEGC", "ISO", "RMS")):
+                continue
+        cleaned[eid] = e
     return list(cleaned.values())
 
 

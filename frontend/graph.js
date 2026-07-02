@@ -53,6 +53,8 @@
       this.edges.forEach((e) => { this.adj.get(e.s.id).add(e.t.id); this.adj.get(e.t.id).add(e.s.id); });
       this.hiddenTypes = this.hiddenTypes || new Set();
       this.searchHits = new Set();
+      this.hover = null;           // clear stale hover so the new graph isn't dimmed
+      this.dragging = null;
       this.alpha = 1;
       this._run();
     }

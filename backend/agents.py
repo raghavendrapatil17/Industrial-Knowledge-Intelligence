@@ -116,13 +116,15 @@ def maintenance_rca(engine, equipment_id: str) -> dict:
         if rec:
             recommendations.append({"doc_id": did, "text": (rec[:260] + "…") if len(rec) > 260 else rec})
 
-    events.sort(key=lambda e: e["date"])
+    # undated events sort first and never count as "recent"
+    _dk = lambda d: d if (d and d != "n/a") else "0000-00-00"
+    events.sort(key=lambda e: _dk(e["date"]))
 
     # --- health / risk scoring ---
     n_fail = len(events)
     vib_vals = [v for _, v in all_vibration]
     peak_vib = max(vib_vals) if vib_vals else None
-    recent = [e for e in events if e["date"] >= "2024-01-01"]
+    recent = [e for e in events if e["date"] != "n/a" and e["date"] >= "2024-01-01"]
     # recurring theme = same failure theme appearing 2+ times
     recurring = sorted([t for t, c in themes_counter.items() if c >= 2],
                        key=lambda t: -themes_counter[t])
@@ -156,7 +158,8 @@ def maintenance_rca(engine, equipment_id: str) -> dict:
         "recommendations": recommendations,
         "linked_documents": doc_ids,
         "narrative": narrative,
-        "vibration_trend": [{"date": d, "value": v} for d, v in sorted(all_vibration)],
+        "vibration_trend": [{"date": d, "value": v}
+                            for d, v in sorted(all_vibration, key=lambda x: (_dk(x[0]), x[1]))],
     }
 
 

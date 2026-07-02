@@ -41,7 +41,7 @@ def _keyword_baseline(engine, question: str) -> tuple[str | None, int]:
         score = sum(text.count(t) for t in terms)
         if score > best_score:
             best, best_score = did, score
-    return best, int((time.perf_counter() - t0) * 1000)
+    return best, round((time.perf_counter() - t0) * 1000, 2)  # keep sub-ms precision
 
 
 def run(engine) -> dict:
@@ -56,7 +56,9 @@ def run(engine) -> dict:
         sys_times.append(dt)
         cited = [c["doc_id"] for c in res["citations"]]
         hit = expected in cited
-        cover = key.lower() in res["answer"].lower()
+        # word-boundary coverage so "21" doesn't match "2021"/"PTW-2024-0210"
+        cover = re.search(r"(?<![\w-])" + re.escape(key.lower()) + r"(?![\w-])",
+                          res["answer"].lower()) is not None
         sys_hits += hit
         coverage_hits += cover
 
@@ -79,7 +81,7 @@ def run(engine) -> dict:
             "answer_coverage": round(100 * coverage_hits / n),
             "baseline_hit_rate": round(100 * base_hits / n),
             "median_time_ms": int(median(sys_times)),
-            "baseline_median_time_ms": int(median(base_times)),
+            "baseline_median_time_ms": round(median(base_times), 2),
         },
         "results": rows,
     }

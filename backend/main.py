@@ -94,8 +94,12 @@ def lessons():
 @app.post("/api/upload")
 async def upload(file: UploadFile = File(...)):
     engine = get_engine()
-    raw = await file.read()
-    if len(raw) > 8 * 1024 * 1024:
+    MAX = 8 * 1024 * 1024
+    # reject oversized uploads BEFORE buffering the whole body into memory
+    if getattr(file, "size", None) and file.size > MAX:
+        raise HTTPException(status_code=413, detail="File too large (max 8 MB).")
+    raw = await file.read(MAX + 1)
+    if len(raw) > MAX:
         raise HTTPException(status_code=413, detail="File too large (max 8 MB).")
     name = file.filename or "uploaded.txt"
     if name.lower().endswith(".pdf"):

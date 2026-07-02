@@ -89,7 +89,7 @@ function setupCommandPalette() {
   $("#cmdk").addEventListener("click", (e) => { if (e.target.id === "cmdk") closeCmdk(); });
 }
 async function openCmdk() {
-  if (!cmdEquip.length) { try { cmdEquip = (await (await fetch("/api/equipment")).json()).equipment; } catch(e){} }
+  if (!cmdEquip.length) { try { cmdEquip = (await (await fetch("/api/equipment")).json()).equipment || []; } catch(e){ cmdEquip = []; } }
   $("#cmdk").hidden = false; $("#cmdkInput").value = ""; renderCmdk(""); $("#cmdkInput").focus();
 }
 function closeCmdk() { $("#cmdk").hidden = true; }
@@ -185,6 +185,8 @@ async function ask(q) {
     const data = await res.json();
     thinking.remove();
     if (!res.ok) { addBotText(data.detail || "Something went wrong."); return; }
+    data.entities = data.entities || []; data.citations = data.citations || []; data.follow_ups = data.follow_ups || [];
+    data.graph = data.graph || { nodes: [], edges: [] };
     renderAnswer(data);
     switchCopilotTab("answer");
     const hi = new Set([...data.entities.map(e => e.id), ...data.citations.map(c => c.doc_id)]);
@@ -524,16 +526,31 @@ async function openDoc(docId, highlights) {
     $("#modalType").textContent = d.doc_type;
     const body = $("#modalBody");
     if (highlights && highlights.length) {
-      let html = escapeHtml(d.text);
-      let n = 0;
+      const esc = escapeHtml(d.text);
+      // collect all match ranges on the escaped text, then merge overlaps so
+      // successive wraps can't nest or corrupt <mark> tags
+      const ranges = [];
       highlights.forEach((h) => {
-        const eh = escapeHtml(h.trim());
-        if (eh && html.includes(eh)) { html = html.split(eh).join(`<mark>${eh}</mark>`); n++; }
+        const eh = escapeHtml((h || "").trim());
+        if (!eh) return;
+        let i = esc.indexOf(eh);
+        while (i !== -1) { ranges.push([i, i + eh.length]); i = esc.indexOf(eh, i + eh.length); }
       });
-      body.innerHTML = html;
-      // note banner + scroll to first mark
-      if (n) {
-        setTimeout(() => { const m = body.querySelector("mark"); if (m) m.scrollIntoView({block:"center"}); }, 30);
+      if (ranges.length) {
+        ranges.sort((a, b) => a[0] - b[0]);
+        const merged = [];
+        for (const r of ranges) {
+          const last = merged[merged.length - 1];
+          if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+          else merged.push(r.slice());
+        }
+        let out = "", pos = 0;
+        for (const [s, e] of merged) { out += esc.slice(pos, s) + "<mark>" + esc.slice(s, e) + "</mark>"; pos = e; }
+        out += esc.slice(pos);
+        body.innerHTML = out;
+        setTimeout(() => { const m = body.querySelector("mark"); if (m) m.scrollIntoView({ block: "center" }); }, 30);
+      } else {
+        body.textContent = d.text;
       }
     } else {
       body.textContent = d.text;

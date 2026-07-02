@@ -123,3 +123,27 @@ def test_benchmark_beats_baseline(engine):
     from backend.benchmark import run
     r = run(engine)
     assert r["summary"]["retrieval_hit_rate"] >= r["summary"]["baseline_hit_rate"]
+
+
+# ---------- security / robustness (from code review) ----------
+def test_safe_filename_blocks_traversal():
+    from backend.rag import _safe_filename
+    assert _safe_filename("../../backend/config.py") == "config.py"
+    assert _safe_filename("/etc/passwd") == "passwd.txt"
+    assert _safe_filename(r"..\windows\x.txt") == "x.txt"
+    assert _safe_filename("report:v2.txt") == "report_v2.txt"   # illegal char sanitised
+    assert _safe_filename("notes") == "notes.txt"               # extensionless
+    assert "/" not in _safe_filename("a/b/c.txt") and "\\" not in _safe_filename(r"a\b.txt")
+
+
+def test_empty_corpus_does_not_crash():
+    from backend.vectorstore import HybridIndex
+    idx = HybridIndex([])                # BM25Okapi([]) would divide by zero
+    assert idx.search("anything") == []
+
+
+def test_personnel_false_positive_filtered():
+    from backend.entities import extract_entities
+    ids = {e.id: e.type for e in extract_entities("Refer to U. Kingdom; A. Nair signed off.")}
+    assert "A. Nair" in ids and ids["A. Nair"] == "personnel"
+    assert "U. Kingdom" not in ids
