@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .env
 storage/*.json
+storage/*.jsonl
 storage/*.pkl
 .venv/
 venv/

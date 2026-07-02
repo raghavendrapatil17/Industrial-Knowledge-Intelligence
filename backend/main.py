@@ -53,8 +53,18 @@ def health():
 def ask(req: AskRequest):
     if not req.question or not req.question.strip():
         raise HTTPException(status_code=400, detail="Empty question")
+    from . import audit
     engine = get_engine()
-    return engine.ask(req.question.strip(), top_k=req.top_k)
+    q = req.question.strip()
+    resp = engine.ask(q, top_k=req.top_k)
+    audit.log_query(q, resp)     # provenance / auditability
+    return resp
+
+
+@app.get("/api/audit")
+def audit_trail():
+    from . import audit
+    return audit.recent(25)
 
 
 @app.get("/api/graph")

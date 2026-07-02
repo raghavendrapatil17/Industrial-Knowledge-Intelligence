@@ -147,3 +147,10 @@ def test_personnel_false_positive_filtered():
     ids = {e.id: e.type for e in extract_entities("Refer to U. Kingdom; A. Nair signed off.")}
     assert "A. Nair" in ids and ids["A. Nair"] == "personnel"
     assert "U. Kingdom" not in ids
+
+
+def test_grounding_gate(engine):
+    good = engine.ask("What do we know about PUMP-204 failure history and safety concerns?")
+    assert good["grounded"] is True and good["advisory"] is None
+    off = engine.ask("quarterly revenue forecast marketing strategy")
+    assert off["grounded"] is False and off["advisory"]   # flagged for verification

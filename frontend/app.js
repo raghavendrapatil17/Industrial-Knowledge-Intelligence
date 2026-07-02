@@ -200,9 +200,11 @@ function renderAnswer(d) {
   const wrap = el("div", "msg bot");
   wrap.appendChild(el("div", "answer-meta",
     `<span class="conf ${d.confidence_label}">${d.confidence_label} confidence · ${(d.confidence*100).toFixed(0)}%</span>` +
+    `<span class="ground ${d.grounded ? "ok" : "warn"}" title="${d.grounded ? "Supporting sentences found in cited sources" : (d.advisory||"")}">${d.grounded ? "✓ Grounded" : "⚠ Verify"}</span>` +
     `<span class="meta-pill">${d.mode === "llm" ? "🤖 LLM answer" : "📄 Extractive answer"}</span>` +
     `<span class="meta-pill">⚡ ${d.elapsed_ms} ms</span>` +
     `<span class="meta-pill">${d.citations.length} sources</span>`));
+  if (d.advisory) wrap.appendChild(el("div", "advisory", "⚠ " + escapeHtml(d.advisory)));
   wrap.appendChild(el("div", "answer-body", linkifyCitations(d.answer)));
   if (d.entities.length) {
     const ents = el("div", "entities");
@@ -430,6 +432,23 @@ async function loadOverview() {
       <span style="display:flex;align-items:center;gap:8px"><span class="mini-gauge"><span style="width:${a.health_score}%;background:${c}"></span></span>
       <span style="font-size:12px;color:${c};font-weight:700">${a.health_score}</span></span></div>`; }).join("") +
     `</div></div></div>`;
+
+  // audit trail — recent answered queries (auditability)
+  try {
+    const au = await (await fetch("/api/audit")).json();
+    html += `<div class="block"><h3>Audit trail <span class="dim" style="font-weight:400;font-size:12px">· ${au.stats.total_queries} queries logged`
+      + (au.stats.grounded_pct!=null?` · ${au.stats.grounded_pct}% grounded`:``) + `</span></h3>`;
+    if (au.events.length) {
+      html += `<table class="tbl"><thead><tr><th>Time (UTC)</th><th>Question</th><th>Confidence</th><th>Grounded</th><th>Sources</th></tr></thead><tbody>` +
+        au.events.slice(0,8).map(e=>`<tr>
+          <td style="white-space:nowrap">${escapeHtml((e.ts||"").replace("T"," ").replace("+00:00",""))}</td>
+          <td>${escapeHtml((e.question||"").slice(0,70))}</td>
+          <td><span class="conf ${e.confidence_label||''}">${e.confidence_label||'—'}</span></td>
+          <td>${e.grounded?'<span class="st Covered">✓</span>':'<span class="st Gap">verify</span>'}</td>
+          <td class="dim">${(e.sources||[]).length}</td></tr>`).join("") + `</tbody></table>`;
+    } else html += `<p class="dim">No queries yet — ask something in the Expert Copilot.</p>`;
+    html += `</div>`;
+  } catch(e) {}
 
   const body = $("#overviewBody");
   body.innerHTML = html;

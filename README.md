@@ -49,6 +49,8 @@ Lessons are pre-computed analytic dashboards over the same linked corpus.
 | **Voice query (field mode)** | Speak your question via the mic button (Web Speech API) | Hits the brief's "mobile for field technicians" |
 | **Smart follow-up suggestions** | Context-aware next questions after every answer | Guides discovery, smooths the demo |
 | **Command palette (Ctrl/Cmd-K)** | Jump to any view, asset, or question instantly | Signals a real, polished product |
+| **Grounding / trust gate** | Every answer is marked **Grounded** or flagged **⚠ Verify** with a low-evidence advisory | Trust in safety-critical use |
+| **Audit trail** | Append-only provenance log of every query (time, confidence, grounding, sources) | Full auditability for regulated industries |
 | **Resilience** | LLM circuit-breaker → instant graceful fallback; runs fully offline | Demo never hard-fails |
 
 ### Measured results (via `python scripts/benchmark.py`)
@@ -177,6 +179,7 @@ No key? It runs in **offline extractive mode** — still cited, still works.
 | `GET  /api/benchmark` | evaluation metrics vs keyword baseline |
 | `GET  /api/export/rca/{id}` | downloadable RCA report (HTML) |
 | `GET  /api/export/compliance` | downloadable compliance evidence pack (HTML) |
+| `GET  /api/audit` | provenance log of recent queries + stats |
 
 Interactive API docs auto-generated at **`/docs`** (Swagger UI).
 

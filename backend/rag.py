@@ -264,6 +264,12 @@ class KnowledgeEngine:
         graph_json = subgraph_json(self.graph, sub_nodes)
 
         entities_sorted = sorted(answer_entities, key=lambda e: e["type"])
+        # grounding gate: an answer is "grounded" only if supporting sentences were found
+        # AND retrieval was corroborated — otherwise flag it for human verification.
+        grounded = bool(citations) and any(c.get("highlights") for c in citations) and conf >= 0.4
+        advisory = None if grounded else (
+            "Low supporting evidence — verify against source documents before acting."
+            if citations else "No matching records found for this query.")
         return {
             "answer": answer,
             "citations": citations,
@@ -271,6 +277,8 @@ class KnowledgeEngine:
             "follow_ups": self._follow_ups(entities_sorted, question),
             "confidence": conf,
             "confidence_label": conf_label,
+            "grounded": grounded,
+            "advisory": advisory,
             "graph": graph_json,
             "mode": mode,
             "elapsed_ms": int((time.time() - t0) * 1000),
