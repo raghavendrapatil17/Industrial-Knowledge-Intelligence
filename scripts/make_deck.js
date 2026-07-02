@@ -56,6 +56,10 @@ function pageNo(s, n) {
     { text: "One knowledge graph reads every plant document — drawings, work orders, near-misses, ", options: {} },
     { text: "procedures — links it, and answers any engineer in seconds with cited, trustworthy answers.", options: {} },
   ], { x: M, y: 4.95, w: 11.4, h: 0.8, margin: 0, fontFace: F, fontSize: 15, italic: true, color: C.mut, lineSpacingMultiple: 1.15 });
+  s.addText([
+    { text: "Team raghupatil9036", options: { color: C.text, bold: true } },
+    { text: "   ·   Raghavendra S Patil   ·   Pallavi C", options: { color: C.mut } },
+  ], { x: M, y: H - 1.05, w: 12, h: 0.3, margin: 0, fontFace: F, fontSize: 13.5 });
   s.addText("AI for Industrial Knowledge Intelligence  ·  NLP / RAG / Knowledge Graph / LLM Agents",
     { x: M, y: H - 0.7, w: 12, h: 0.3, margin: 0, fontFace: F, fontSize: 12, color: C.dim });
   s.addNotes("Open with the pain, not the tech. A plant runs 7-12 disconnected document systems; when something fails the answer is scattered and nobody cross-references it. We built a system that reads all of it, links it, and answers any engineer in seconds — and keeps that knowledge when the senior engineer retires.");
