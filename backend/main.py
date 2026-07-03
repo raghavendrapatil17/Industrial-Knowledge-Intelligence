@@ -106,6 +106,12 @@ def rca(equipment_id: str):
     return maintenance_rca(engine, equipment_id)
 
 
+@app.get("/api/sensors/{equipment_id}")
+def sensors_now(equipment_id: str):
+    from . import sensors
+    return sensors.current_readings(equipment_id)
+
+
 @app.get("/api/compliance")
 def compliance():
     from .agents import compliance_report

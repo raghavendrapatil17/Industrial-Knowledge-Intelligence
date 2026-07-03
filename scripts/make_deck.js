@@ -125,11 +125,11 @@ function pageNo(s, n) {
   kicker(s, "Our Solution");
   title(s, "One knowledge graph. Five specialist agents.");
   const agents = [
-    ["Ingestion & Knowledge Graph", "Reads PDF, spreadsheets, email & scanned images (OCR); links into a live graph"],
+    ["Ingestion & Knowledge Graph", "Reads PDF, spreadsheets, email, scanned images & P&IDs (OCR + layout); links into a live graph"],
     ["Expert Copilot", "Plain-language Q&A with cited, confidence-scored answers in ~10 ms"],
-    ["Maintenance & RCA", "Per-asset health, failure timeline, root cause & predictive actions"],
+    ["Maintenance & RCA", "Per-asset health, timeline & root cause, fused with a live sensor feed"],
     ["Compliance Intelligence", "OISD / Factory Act / PESO coverage matrix with gap detection"],
-    ["Lessons Learned", "Recurring failure patterns across the plant's whole history"],
+    ["Lessons Learned", "Recurring failure patterns, matched to known industry failure modes"],
   ];
   // central concept chip
   const cy = 2.3;

@@ -142,8 +142,15 @@ def maintenance_rca(engine, equipment_id: str) -> dict:
     else:
         health = "At Risk"
 
+    # --- fuse REAL-TIME operating conditions (live sensor feed) with document history ---
+    from . import sensors
+    live = sensors.current_readings(equipment_id)
+
     # --- narrative (LLM if available, else deterministic) ---
     narrative = _rca_narrative(engine, equipment_id, events, root_causes, recurring, peak_vib)
+    if live["alarms"]:
+        narrative += (f" Live condition alert: {', '.join(live['alarms'])} currently in ALARM, "
+                      f"consistent with the recurring pattern above — recommend acting now.")
 
     return {
         "equipment": equipment_id,
@@ -158,6 +165,7 @@ def maintenance_rca(engine, equipment_id: str) -> dict:
         "recommendations": recommendations,
         "linked_documents": doc_ids,
         "narrative": narrative,
+        "live_conditions": live,
         "vibration_trend": [{"date": d, "value": v}
                             for d, v in sorted(all_vibration, key=lambda x: (_dk(x[0]), x[1]))],
     }
@@ -293,11 +301,16 @@ def lessons_learned(engine) -> dict:
             theme_events[name].append({"doc_id": did, "doc_type": dtype, "date": date})
             theme_equipment[name].update(eqp)
 
+    from . import external_kb
     patterns = []
+    matched_external = 0
     for theme, evs in theme_events.items():
         if len(evs) < 2:
             continue  # a pattern needs recurrence
         sev = "High" if len(evs) >= 3 else "Medium"
+        ext = external_kb.match(theme)   # cross-reference against known industry failure modes
+        if ext:
+            matched_external += 1
         patterns.append({
             "pattern": theme,
             "occurrences": len(evs),
@@ -306,11 +319,13 @@ def lessons_learned(engine) -> dict:
             "documents": sorted({e["doc_id"] for e in evs}),
             "date_range": f"{min(e['date'] for e in evs)} → {max(e['date'] for e in evs)}",
             "recommendation": _RECOMMENDATION_BY_THEME.get(theme, "Review and standardise controls."),
+            "industry_match": ext,
         })
     patterns.sort(key=lambda p: (-p["occurrences"], p["pattern"]))
 
     return {
         "patterns": patterns,
+        "external_matches": matched_external,
         "stats": {
             "failure_documents_analysed": sum(1 for d in engine.all_docs()
                                               if engine.doc_type(d) in _FAILURE_TYPES),

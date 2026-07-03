@@ -173,6 +173,7 @@ function animateNumbers(sel) { document.querySelectorAll(sel).forEach(countUp); 
 async function switchView(name) {
   document.querySelectorAll(".nav").forEach((b) => b.classList.toggle("active", b.dataset.view === name));
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + name));
+  if (name !== "rca") stopLivePolling();
   if (name === "overview" && !loaded.overview) await loadOverview();
   if (name === "graph") { fullGraph.resize(); await loadFullGraph(); }
   if (name === "copilot") { answerGraph.resize(); answerGraph._draw(); }
@@ -362,6 +363,9 @@ async function runRCA(id) {
     <div class="card"><div class="k">Peak vibration</div><div class="v small">${d.peak_vibration_mm_s ? d.peak_vibration_mm_s+" mm/s" : "—"}</div></div>
   </div>`;
 
+  // real-time operating conditions (live sensor feed fused with history)
+  html += `<div class="block"><h3>Live operating conditions <span class="dim" style="font-weight:400;font-size:11px">· simulated SCADA feed · updates live</span></h3><div id="liveConditions">${renderLiveHTML(d.live_conditions)}</div></div>`;
+
   if (d.recurring_themes.length)
     html += `<div class="block"><h3>Recurring failure themes</h3>${d.recurring_themes.map(t=>`<span class="themepill">${escapeHtml(t)}</span>`).join("")}</div>`;
 
@@ -382,6 +386,34 @@ async function runRCA(id) {
   html += `<p class="dim">Linked documents: ${(d.linked_documents||[]).map(x=>`<span class="doclink" data-doc="${escapeAttr(x)}">${escapeHtml(x)}</span>`).join(", ") || "none"}</p>`;
   body.innerHTML = html;
   body.querySelectorAll("[data-doc]").forEach((n)=> n.onclick = () => openDoc(n.dataset.doc));
+  startLivePolling(id);   // keep the live sensor card ticking
+}
+
+let _liveTimer = null;
+function stopLivePolling() { if (_liveTimer) { clearInterval(_liveTimer); _liveTimer = null; } }
+function startLivePolling(id) {
+  stopLivePolling();
+  _liveTimer = setInterval(async () => {
+    const box = $("#liveConditions");
+    if (!box || !document.querySelector("#view-rca.active")) { stopLivePolling(); return; }
+    try {
+      const live = await (await fetch("/api/sensors/" + encodeURIComponent(id))).json();
+      box.innerHTML = renderLiveHTML(live);
+    } catch (e) { stopLivePolling(); }
+  }, 3000);
+}
+function renderLiveHTML(live) {
+  if (!live || !live.readings) return `<p class="dim">No live feed.</p>`;
+  const cells = live.readings.map(r => {
+    const alarm = r.status === "ALARM";
+    const col = alarm ? "var(--bad)" : "var(--ok)";
+    return `<div class="card" style="min-width:150px">
+      <div class="k">${escapeHtml(r.metric)}</div>
+      <div class="v small" style="color:${col}">${r.value} <span style="font-size:12px;color:var(--dim)">${escapeHtml(r.unit||"")}</span></div>
+      <div style="font-size:11px;color:${col};font-weight:700">${alarm ? "⚠ ALARM" : "● Normal"}${r.alarm?` (limit ${r.alarm})`:""}</div></div>`;
+  }).join("");
+  return `<div class="cards" style="margin-bottom:6px">${cells}</div>
+    <div class="dim" style="font-size:11px">Updated ${escapeHtml((live.ts||"").replace("T"," ").replace("+00:00"," UTC"))}${live.alarms&&live.alarms.length?` · <span style="color:var(--bad);font-weight:700">${live.alarms.length} in alarm</span>`:""}</div>`;
 }
 
 /* ================= COMPLIANCE ================= */
@@ -427,6 +459,7 @@ async function loadLessons() {
     <div class="card"><div class="k">Failure docs analysed</div><div class="v">${s.failure_documents_analysed}</div></div>
     <div class="card"><div class="k">Recurring patterns</div><div class="v">${s.recurring_patterns}</div></div>
     <div class="card"><div class="k">High severity</div><div class="v health-At">${s.high_severity}</div></div>
+    <div class="card"><div class="k">Match known industry modes</div><div class="v">${d.external_matches!=null?d.external_matches:"—"}</div></div>
   </div>`;
 
   html += `<div class="patterns">` + d.patterns.map(p=>`
@@ -437,6 +470,7 @@ async function loadLessons() {
       <div class="pat-line"><b>Assets:</b> ${escapeHtml((p.equipment||[]).join(", ")) || "—"}</div>
       <div class="pat-line"><b>Window:</b> ${escapeHtml(p.date_range)}</div>
       <div class="pat-line"><b>Evidence:</b> ${(p.documents||[]).map(x=>`<span class="doclink" data-doc="${escapeAttr(x)}">${escapeHtml(x)}</span>`).join(", ")}</div>
+      ${p.industry_match?`<div class="pat-line" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-soft)"><b style="color:var(--cyan)">Matches known industry failure mode:</b> ${escapeHtml(p.industry_match.failure_mode)}<br><span class="dim">Ref: ${escapeHtml(p.industry_match.industry_ref)}</span></div>`:``}
       <div class="pat-rec">${escapeHtml(p.recommendation)}</div>
     </div>`).join("") + `</div>`;
   if (!d.patterns.length) html += `<p class="dim">No recurring patterns detected.</p>`;

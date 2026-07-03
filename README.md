@@ -29,11 +29,11 @@ The technology exists. The **intelligence layer that connects it** does not. Tha
 
 | # | Agent | Status | What it does |
 |---|-------|--------|--------------|
-| 1 | **Universal Document Ingestion & Knowledge Graph Agent** | ✅ Built | Ingests heterogeneous formats — **PDF, text, spreadsheets (.xlsx/.csv), email (.eml), and scanned images/photos via OCR** — extracts entities, builds a linked knowledge graph across document types |
+| 1 | **Universal Document Ingestion & Knowledge Graph Agent** | ✅ Built | Ingests heterogeneous formats — **PDF, text, spreadsheets (.xlsx/.csv), email (.eml), scanned images via OCR, and P&IDs digitised into tags + connections** — extracts entities, builds a linked knowledge graph across document types |
 | 2 | **Expert Knowledge Copilot** | ✅ Built | RAG chat: cited, confidence-scored answers in ~10ms, mobile-ready |
-| 3 | **Maintenance Intelligence & RCA Agent** | ✅ Built | Per-asset root-cause + health score + failure timeline + predictive recs |
+| 3 | **Maintenance Intelligence & RCA Agent** | ✅ Built | Per-asset root-cause + health score + failure timeline + predictive recs, **fused with a live sensor feed (simulated SCADA)** |
 | 4 | **Quality & Regulatory Compliance Intelligence** | ✅ Built | OISD/Factory Act/PESO requirement-coverage matrix + gap detection |
-| 5 | **Lessons Learned & Failure Intelligence Engine** | ✅ Built | Recurring failure-pattern detection across incident/near-miss history |
+| 5 | **Lessons Learned & Failure Intelligence Engine** | ✅ Built | Recurring failure-pattern detection, **cross-referenced against known industry failure modes** (ISO/API/OISD) |
 
 **All five are lenses over the same knowledge graph** — the design the problem statement rewards:
 one "operations brain," many views. The Copilot answers ad-hoc questions; RCA, Compliance and

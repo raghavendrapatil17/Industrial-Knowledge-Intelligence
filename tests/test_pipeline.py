@@ -178,6 +178,40 @@ def test_ocr_ingestion():
     assert "PUMP-204" in text.replace(" ", "")
 
 
+def test_pid_digitisation():
+    """A P&ID/drawing image is digitised into tags AND inferred connections (not just OCR)."""
+    try:
+        import rapidocr_onnxruntime  # noqa
+        from PIL import Image, ImageDraw
+    except Exception:
+        pytest.skip("OCR engine not installed")
+    import io
+    img = Image.new("RGB", (700, 200), "white")
+    d = ImageDraw.Draw(img)
+    for t, x in [("PUMP-204", 40), ("VALVE-77", 300), ("B-301", 560)]:
+        d.text((x, 90), t, fill="black")
+    buf = io.BytesIO(); img.save(buf, "PNG")
+    from backend.ingestion import parse_bytes
+    text = parse_bytes("PID-U3.png", buf.getvalue())
+    assert "P&ID" in text and "connected to" in text
+    assert "PUMP-204" in text.replace(" ", "")
+
+
+def test_live_sensors_and_rca_fusion(engine):
+    from backend import sensors
+    r = sensors.current_readings("PUMP-204")
+    assert r["readings"] and all("status" in x for x in r["readings"])
+    from backend.agents import maintenance_rca
+    assert "live_conditions" in maintenance_rca(engine, "PUMP-204")
+
+
+def test_lessons_external_industry_match(engine):
+    from backend.agents import lessons_learned
+    d = lessons_learned(engine)
+    assert d["external_matches"] >= 1
+    assert any(p.get("industry_match") for p in d["patterns"])
+
+
 def test_feedback_log():
     from backend import audit
     backup = audit._FEEDBACK.read_bytes() if audit._FEEDBACK.exists() else None

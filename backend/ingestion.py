@@ -18,8 +18,13 @@ SUPPORTED_EXT = {".txt", ".md", ".pdf", ".csv", ".xlsx", ".eml"} | _IMAGE_EXT
 _ocr_engine = None
 
 
+# equipment/instrument tag shapes found on P&IDs / drawings
+_TAG_RE = re.compile(r"\b(?:PUMP|MOTOR|VALVE|FO|PT|TT|FT|LT|PSV|HX|B|K|V|E|P)-?\d{1,4}[A-Z]?\b", re.I)
+
+
 def _ocr_image(raw: bytes) -> str:
-    """OCR a scanned form / photo / drawing into text (Document Intelligence)."""
+    """OCR a scanned form / photo. If it looks like an engineering drawing (P&ID),
+    digitise it: extract tags AND infer connections from their layout (drawing digitisation)."""
     global _ocr_engine
     import numpy as np, cv2
     from rapidocr_onnxruntime import RapidOCR
@@ -29,7 +34,45 @@ def _ocr_image(raw: bytes) -> str:
     if img is None:
         return "[Could not decode image]"
     res, _ = _ocr_engine(img)
-    body = "\n".join(line[1] for line in (res or []))
+    items = res or []
+    # (text, center-x, center-y) for every detected string
+    placed = []
+    for box, text, _score in items:
+        xs = [p[0] for p in box]; ys = [p[1] for p in box]
+        placed.append((text.strip(), sum(xs) / 4.0, sum(ys) / 4.0))
+
+    # tags with positions
+    tags = []
+    for text, cx, cy in placed:
+        m = _TAG_RE.search(text.replace(" ", ""))
+        if m:
+            tags.append((m.group(0).upper(), cx, cy))
+    uniq = {}
+    for t, x, y in tags:
+        uniq.setdefault(t, (x, y))
+
+    if len(uniq) >= 3:   # treat as a P&ID / engineering drawing → digitise structure
+        names = list(uniq.keys())
+        lines = ["DOCUMENT TYPE: Engineering Drawing (P&ID) — digitised by OCR + layout analysis", ""]
+        lines.append("EQUIPMENT / INSTRUMENT TAGS DETECTED: " + ", ".join(sorted(names)))
+        lines.append("")
+        lines.append("INFERRED CONNECTIONS (from tag proximity on the drawing):")
+        seen = set()
+        pts = uniq
+        for a in names:
+            ax, ay = pts[a]
+            nearest = sorted(((((ax - pts[b][0]) ** 2 + (ay - pts[b][1]) ** 2) ** 0.5, b)
+                              for b in names if b != a))
+            for _d, b in nearest[:1]:      # link each tag to its closest neighbour
+                pair = tuple(sorted((a, b)))
+                if pair not in seen:
+                    seen.add(pair)
+                    lines.append(f"{pair[0]} is connected to {pair[1]}")
+        lines.append("")
+        lines.append("RAW EXTRACTED TEXT: " + " ".join(t for t, _, _ in placed))
+        return "\n".join(lines)
+
+    body = "\n".join(t for t, _, _ in placed)
     return "DOCUMENT TYPE: Scanned Document (OCR)\n\n" + (body or "[No text detected in image]")
 
 
