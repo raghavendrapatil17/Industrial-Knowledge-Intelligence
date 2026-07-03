@@ -43,7 +43,8 @@ children.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ t
 children.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: "Unified Asset & Operations Brain", color: ORANGE, size: 30 })] }));
 children.push(new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: "ET AI Hackathon 2026  ·  Problem Statement #8", color: GREY, size: 22, bold: true })] }));
 children.push(new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: "Team raghupatil9036  —  Raghavendra S Patil, Pallavi C", color: GREY, size: 22 })] }));
-children.push(new Paragraph({ spacing: { after: 240 }, children: [new TextRun({ text: "GitHub: github.com/raghavendrapatil17/Industrial-Knowledge-Intelligence", color: GREY, size: 20, italics: true })] }));
+children.push(new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: "GitHub: github.com/raghavendrapatil17/Industrial-Knowledge-Intelligence", color: GREY, size: 20, italics: true })] }));
+children.push(new Paragraph({ spacing: { after: 240 }, children: [new TextRun({ text: "Live demo: industrial-knowledge-intelligence-sz8a.onrender.com", color: ORANGE, size: 20, italics: true, bold: true })] }));
 
 // ---- 1. The Problem ----
 children.push(H1("1. The Problem (in plain English)"));
@@ -62,11 +63,11 @@ children.push(P("It is one shared brain with five specialist agents working on t
 children.push(table(
   ["Agent", "What it does (simple English)"],
   [
-    ["1. Ingestion & Knowledge Graph", "Reads PDFs, spreadsheets, emails and even scanned photos, pulls out equipment tags, people, dates and regulations, and links them all together."],
+    ["1. Ingestion & Knowledge Graph", "Reads PDFs, spreadsheets, emails, scanned photos, and even P&ID drawings (extracting tags and their connections). Pulls out equipment, people, dates and regulations and links them together."],
     ["2. Expert Copilot", "A chat assistant. Ask a question, get an answer with clickable sources, a confidence score, and a “grounded” or “verify” trust badge."],
-    ["3. Maintenance & RCA", "Looks at an asset’s full history and explains the real root cause of failures, plus what to do next to prevent them."],
+    ["3. Maintenance & RCA", "Looks at an asset’s full history AND a live sensor feed together, explains the real root cause of failures, and says what to do next to prevent them."],
     ["4. Compliance Intelligence", "Checks the plant’s records against safety rules (OISD, Factory Act, PESO) and flags gaps before an audit does."],
-    ["5. Lessons Learned", "Finds repeating failure patterns across the whole plant’s history that no single person would ever notice."],
+    ["5. Lessons Learned", "Finds repeating failure patterns no single person would notice, and matches them to known industry failure modes (ISO / API / OISD)."],
   ],
   [3000, 6360]));
 
@@ -76,6 +77,9 @@ children.push(bullet("Ask a question in normal English and get an answer in abou
 children.push(bullet("Every claim links to the exact sentence in the source that supports it — you can see the proof, not just trust it.", "Grounded to the sentence"));
 children.push(bullet("The same pump appears in five documents, and the graph automatically connects them, so you see the whole story across documents.", "Cross-document linking"));
 children.push(bullet("Drop in a PDF, spreadsheet, email, or a photo of a paper form — it is read (with OCR for images), understood, and added to the graph in seconds.", "Reads any format"));
+children.push(bullet("Upload a P&ID engineering drawing and the system reads the equipment tags and works out how they connect from their positions on the drawing — turning a picture into structured, linked data.", "P&ID digitisation"));
+children.push(bullet("The maintenance agent combines the document history with a live sensor feed (vibration, temperature, pressure) that updates on screen, and raises an alert when a reading crosses its limit.", "Live operating conditions"));
+children.push(bullet("Repeating problems are matched to known industry failure modes with standard references (ISO 20816, API 682, OISD), so the plant learns from the wider industry, not just itself.", "Industry benchmarking"));
 children.push(bullet("Every answer is marked “Grounded” or flagged “Verify,” so people know when to double-check before acting on something safety-critical.", "Trust gate"));
 children.push(bullet("Every question and answer is logged with time, confidence and sources — full traceability for regulated industries. Exportable as CSV.", "Audit trail"));
 children.push(bullet("Engineers can thumbs-up a good answer to capture their expert validation — preserving knowledge before they retire.", "Expert feedback"));
@@ -109,7 +113,7 @@ children.push(table(
     ["Correct document found", "100%", "67%"],
     ["Answer covers the key fact", "92%", "—"],
     ["Time to answer", "~10 milliseconds", "Minutes to hours (manual)"],
-    ["Automated tests passing", "19 / 19", "—"],
+    ["Automated tests passing", "22 / 22", "—"],
     ["Security review rounds", "3 (all issues fixed)", "—"],
   ],
   [3400, 3000, 2960]));
@@ -118,14 +122,15 @@ children.push(table(
 children.push(H1("7. Technology Used"));
 children.push(bullet("Python, FastAPI (backend), a lightweight vanilla-JavaScript web app (frontend)."));
 children.push(bullet("Hybrid search: BM25 keyword search + a networkx knowledge graph."));
-children.push(bullet("RapidOCR for reading scanned images; openpyxl for spreadsheets."));
+children.push(bullet("RapidOCR for reading scanned images and P&IDs (with layout analysis for connections); openpyxl for spreadsheets."));
 children.push(bullet("Works with Anthropic Claude or OpenAI when a key is present, with a full offline fallback."));
-children.push(bullet("Docker-ready, with an automated test suite and API documentation."));
+children.push(bullet("Docker-ready, hosted live on Render, with an automated test suite (22 tests) and API documentation."));
 
 // ---- 8. What's Next ----
 children.push(H1("8. What’s Next (roadmap)"));
-children.push(bullet("Full P&ID engineering-drawing understanding with computer vision."));
-children.push(bullet("Live connection to sensors/SCADA for real-time condition monitoring."));
+children.push(bullet("Deeper P&ID understanding — full symbol recognition, on top of the tag-and-connection extraction we already do."));
+children.push(bullet("Connect the live sensor feed to a real plant historian / SCADA source (today it uses a realistic simulated feed)."));
+children.push(bullet("Link the industry failure-mode library to live external incident databases."));
 children.push(bullet("Multi-language support for field technicians across regions."));
 children.push(lead("The foundation — one connected knowledge graph with specialist agents — is built to scale to any asset-heavy industry: a refinery, a data centre, or a power plant. When the engineer who knows the plant retires, the knowledge stays."));
 
